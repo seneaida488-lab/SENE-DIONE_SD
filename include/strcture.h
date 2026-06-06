@@ -41,7 +41,8 @@ char nom[40];
 char *prenom;
 Date dateNaissance;
 Note *tabnote;
-Inscription *inscription;	
+Inscription *inscription;
+int tab[20];	
 }Etudiant;
 
 	
