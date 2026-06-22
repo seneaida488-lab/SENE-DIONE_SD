@@ -29,7 +29,6 @@ void tableau_agrandir(TableauDyn *t) {
     // On alloue un nouveau tableau plus grand
     t->tab=nouveau_tab;
     }
-
 void tableau_liberer(TableauDyn *t) {
 if (t->tab != NULL) {  // Rien librer si le tableau est NULL
     for (int i = 0; i < t->taille; i++) {
