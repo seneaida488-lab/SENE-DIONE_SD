@@ -1,0 +1,1 @@
+print("python fonction sur mon pc !")
