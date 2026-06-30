@@ -21,9 +21,9 @@ SRCS_COMMUNS = $(SRC)/structure.c \
 all: structure bench main_statique main_dynamique main_liste
 
 # ============================================================
-# PROGRAMME PRINCIPAL au menu interactif scolaritÃ©
+# PROGRAMME PRINCIPAL au menu interactif scolarité
 # ============================================================
-scolarite: $(SRCS_COMMUNS) $(BEN)/main_scolarite.c
+structure: $(SRCS_COMMUNS) $(BEN)/main_structure.c
 	$(CC) $(CFLAGS) -o structure \
 		$(SRCS_COMMUNS) \
 		$(BEN)/main_structure.c \
@@ -86,7 +86,7 @@ courbes: run_bench
 # NETTOYAGE
 # ============================================================
 clean:
-	rm -f scolarite bench main_statique main_dynamique main_liste
+	rm -f structure bench main_statique main_dynamique main_liste
 	rm -f *.bin *.csv
 	rm -f $(GRAPHS)/*.png
 	@echo ">>> Nettoyage terminé"
