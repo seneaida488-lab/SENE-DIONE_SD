@@ -1,0 +1,28 @@
+# Exécutables compilés
+structure
+bench
+main_statique
+main_dynamique
+main_liste
+*.exe
+*.o
+
+# Fichiers binaires générés
+*.bin
+etudiants_dyn.bin
+etudiants_liste.bin
+
+# Fichiers LaTeX temporaires
+rapport/*.aux
+rapport/*.log
+rapport/*.toc
+rapport/*.out
+rapport/*.synctex.gz
+
+# Fichiers Python cache
+__pycache__/
+*.pyc
+
+# Fichiers système
+.DS_Store
+Thumbs.db
