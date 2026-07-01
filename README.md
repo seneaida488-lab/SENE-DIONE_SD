@@ -195,3 +195,5 @@ Le benchmark mesure les temps d'exécution selon :
 1. Cormen T. H. et al., *Introduction to Algorithms*, 4e éd., MIT Press, 2022
 2. Sedgewick R., Wayne K., *Algorithms*, 4e éd., Addison-Wesley, 2011
 3. Kernighan B. W., Ritchie D. M., *The C Programming Language*, 2e éd.
+GIP LIEN :
+https://github.com/seneaida488-lab/SENE-DIONE_SD

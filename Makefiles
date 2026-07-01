@@ -16,30 +16,30 @@ SRCS_COMMUNS = $(SRC)/structure.c \
                $(SRC)/liste_chainee.c
 
 # ============================================================
-# CIBLE PAR DEFAUT : compiler tout
+# CIBLE PAR DÉFAUT : compiler tout
 # ============================================================
-all: structure bench main_statique main_dynamique main_liste
+all: main_structure main_bench main_statique main_dynamique main_liste main_unique
 
 # ============================================================
-# PROGRAMME PRINCIPAL au menu interactif scolarité
+# PROGRAMME PRINCIPAL — menu interactif scolarité
 # ============================================================
-structure: $(SRCS_COMMUNS) $(BEN)/main_structure.c
+main_structure: $(SRCS_COMMUNS) $(BEN)/main_structure.c
 	$(CC) $(CFLAGS) -o structure \
 		$(SRCS_COMMUNS) \
 		$(BEN)/main_structure.c \
 		$(LDFLAGS)
-	@echo ">>> structure compilé"
+	@echo ">>> main_structure compilé"
 
 # ============================================================
-# BENCHMARK au mesure des temps d'exécution
+# BENCHMARK — mesure des temps d'exécution
 # ============================================================
-bench: $(SRCS_COMMUNS) $(BEN)/generateur_donnee.c $(BEN)/main.c
+main_bench: $(SRCS_COMMUNS) $(BEN)/generateur_donnee.c $(BEN)/main.c
 	$(CC) $(CFLAGS) -o bench \
 		$(SRCS_COMMUNS) \
 		$(BEN)/generateur_donnee.c \
-		$(BEN)/main.c \
+		$(BEN)/main_bench.c \
 		$(LDFLAGS)
-	@echo ">>> bench compilé"
+	@echo ">>> main_bench compilé"
 
 # ============================================================
 # MAIN TABLEAU STATIQUE
@@ -62,7 +62,7 @@ main_dynamique: $(SRCS_COMMUNS) $(BEN)/main_dynamique.c
 	@echo ">>> main_dynamique compilé"
 
 # ============================================================
-# MAIN LISTE DOUBLEMENT CHAINNE
+# MAIN LISTE DOUBLEMENT CHAÎNÉE
 # ============================================================
 main_liste: $(SRCS_COMMUNS) $(BEN)/main_liste.c
 	$(CC) $(CFLAGS) -o main_liste \
@@ -72,11 +72,22 @@ main_liste: $(SRCS_COMMUNS) $(BEN)/main_liste.c
 	@echo ">>> main_liste compilé"
 
 # ============================================================
-# LANCER LE BENCHMARK ET GENERER LES COURBES
+# MAIN UNIQUE — regroupe les 3 structures dans un seul menu
+# ============================================================
+main_unique: $(SRCS_COMMUNS) $(BEN)/generateur_donnee.c $(BEN)/main_unique.c
+	$(CC) $(CFLAGS) -o main_unique \
+		$(SRCS_COMMUNS) \
+		$(BEN)/generateur_donnee.c \
+		$(BEN)/main_unique.c \
+		$(LDFLAGS)
+	@echo ">>> main_unique compilé"
+
+# ============================================================
+# LANCER LE BENCHMARK ET GÉNÉRER LES COURBES
 # ============================================================
 run_bench: bench
 	./bench
-	@echo ">>> Benchmark terminé au résultats dans resultats_benchmark.csv"
+	@echo ">>> Benchmark terminé — résultats dans resultats_benchmark.csv"
 
 courbes: run_bench
 	cd $(GRAPHS) && python main.py
@@ -86,7 +97,7 @@ courbes: run_bench
 # NETTOYAGE
 # ============================================================
 clean:
-	rm -f structure bench main_statique main_dynamique main_liste
+	rm -f main_structure main_ssbench main_statique main_dynamique main_liste main_unique
 	rm -f *.bin *.csv
 	rm -f $(GRAPHS)/*.png
 	@echo ">>> Nettoyage terminé"
@@ -96,15 +107,15 @@ clean:
 # ============================================================
 help:
 	@echo "Cibles disponibles :"
-	@echo "  make all           au compile tout"
-	@echo "  make structure     au compile le menu interactif"
-	@echo "  make bench         au compile le benchmark"
-	@echo "  make main_statique au compile le main tableau statique"
-	@echo "  make main_dynamique au compile le main tableau dynamique"
-	@echo "  make main_liste    au compile le main liste chainée"
-	@echo "  make run_bench     au lance le benchmark"
-	@echo "  make courbes       au lance benchmark + génére les courbes"
-	@echo "  make clean         au supprime les exécutables et fichiers générés"
+	@echo "  make all           — compile tout"
+	@echo "  make structure     — compile le menu interactif"
+	@echo "  make bench         — compile le benchmark"
+	@echo "  make main_statique — compile le main tableau statique"
+	@echo "  make main_dynamique— compile le main tableau dynamique"
+	@echo "  make main_liste    — compile le main liste chaînée"
+	@echo "  make run_bench     — lance le benchmark"
+	@echo "  make courbes       — lance benchmark + génère les courbes"
+	@echo "  make clean         — supprime les exécutables et fichiers générés"
 
-.PHONY: all structure bench main_statique main_dynamique main_liste \
+.PHONY: all main_structure main_bench main_statique main_dynamique main_liste main_unique \
         run_bench courbes clean help

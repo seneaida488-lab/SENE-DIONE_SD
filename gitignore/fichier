@@ -1,6 +1,6 @@
 # Exécutables compilés
-structure
-bench
+main_structure
+main_bench
 main_statique
 main_dynamique
 main_liste

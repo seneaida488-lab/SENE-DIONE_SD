@@ -16,13 +16,12 @@
 #define NB_TAILLES       4   /* 100, 1000, 10000, 100000         */
 #define NB_DISTRIBUTIONS 3   /* uniforme, gaussienne, triée      */
 
-/* Tailles des jeux de données */
- int TAILLES[NB_TAILLES] = {N1, N2, N3, N4};
+/* Tailles des jeux de données 
+int TAILLES[NB_TAILLES] = {N1, N2, N3, N4};
 
 /* Distributions testées */
  Distribution DISTRIBUTIONS[NB_DISTRIBUTIONS] = {
-    UNIFORME, GAUSSIENNE, TRIEE
-};
+    UNIFORME, GAUSSIENNE, TRIEE};
 
  double get_temps(void)
 {
@@ -48,7 +47,7 @@
     return sqrt(somme / n);
 }
 
- void bench_tableau_statique(int n, Distribution dist, FILE *f)
+void bench_tableau_statique(int n, Distribution dist, FILE *f)
 {
     double temps[NB_REPETITIONS];
     double t_debut, t_fin, moy, ecar;
@@ -56,7 +55,7 @@
     /* --- INSERTION --- */
     for (int r = 0; r < NB_REPETITIONS; r++) {
         Etudiant **data = generer_etudiants(n, dist);
-        static Etudiant tab[100000];
+        Etudiant tab[100000];
         int taille = 0;
 
         t_debut = get_temps();
@@ -97,12 +96,12 @@
         int matricule = 1000 + (rand() % taille);
         t_debut  = get_temps();
         suppressionCleprimaire(tab, &taille, matricule);
-        t_fin    = get_temps();
+        t_fin   = get_temps();
         temps[r] = t_fin - t_debut;
-        /* Rinsérer pour garder la taille stable */
+        /* Réinsérer pour garder la taille stable */
         Etudiant e;
         e.matricule = matricule;
-        e.moyenne   = 10.0f;
+        e.moyenne   = 10.0;
         strcpy(e.nom, "X");
         insertionTableau(tab, &taille, e);
     }
@@ -134,7 +133,7 @@
     /* --- TRI RAPIDE --- */
     for (int r = 0; r < NB_REPETITIONS; r++) {
         Etudiant **d2 = generer_etudiants(n, dist);
-         Etudiant tab2[100000];
+        static Etudiant tab2[100000];
         int t2 = 0;
         for (int i = 0; i < n; i++)
             insertionTableau(tab2, &t2, *d2[i]);
@@ -154,7 +153,7 @@
     liberer_etudiants(data, n);
 }
 
- void bench_tableau_dynamique(int n, Distribution dist, FILE *f)
+void bench_tableau_dynamique(int n, Distribution dist, FILE *f)
 {
     double temps[NB_REPETITIONS];
     double t_debut, t_fin, moy, ecar;
@@ -171,7 +170,7 @@
 
         temps[r] = t_fin - t_debut;
 
-        /* Ne pas libÃ©rer les étudiants ici â€” le tableau les gÃ¨re */
+        /* Ne pas libérer les étudiants ici — le tableau les gère */
         liberer_tableau_dyn(t);
         free(data); /* libérer seulement le tableau de pointeurs */
     }
@@ -205,10 +204,11 @@
         supprimer_par_matricule_dyn(t, matricule);
         t_fin = get_temps();
         temps[r] = t_fin - t_debut;
-        /* Rinsrer pour garder la taille stable */
+        /* Réinsérer pour garder la taille stable */
+        Date d_temp = {1, 1, 2006};
         Etudiant *e = creer_etudiant(matricule, 10.0f,
                                       "X", "X",
-                                      (Date){1,1,2000});
+                                      d_temp);
         inserer_etudiant_dyn(t, e);
     }
     moy  = calcul_moyenne(temps, NB_REPETITIONS);
@@ -287,7 +287,7 @@ void bench_liste(int n, Distribution dist, FILE *f)
 
     /* --- RECHERCHE --- */
     Etudiant **data = generer_etudiants(n, dist);
-    ListeDC *l      = creer_liste();
+    ListeDC *l     = creer_liste();
     for (int i = 0; i < n; i++)
         inserer_en_queue(l, data[i]);
 
@@ -310,10 +310,11 @@ void bench_liste(int n, Distribution dist, FILE *f)
         supprimer_matricule_liste(l, matricule);
         t_fin = get_temps();
         temps[r] = t_fin - t_debut;
-        /* RÃ©insÃ©rer pour garder la taille stable */
-        Etudiant *e = creer_etudiant(matricule, 10.0f,
+        /* Réinsérer pour garder la taille stable */
+        Date d_temp2 = {1, 1, 2005};
+        Etudiant *e = creer_etudiant(matricule, 10.0,
                                       "X", "X",
-                                      (Date){1,1,2000});
+                                      d_temp2);
         inserer_en_queue(l, e);
     }
     moy  = calcul_moyenne(temps, NB_REPETITIONS);
@@ -368,24 +369,24 @@ void bench_liste(int n, Distribution dist, FILE *f)
 int main(void)
 {
     printf("============================================\n");
-    printf("   BENCHMARK â€” LMI ASD 2026\n");
+    printf("   BENCHMARK — LMI ASD 2026\n");
     printf("   Structures : TabDyn + Liste Chainee\n");
     printf("============================================\n\n");
 
     /* Ouvrir le fichier de résultats CSV */
     FILE *f = fopen("resultats_benchmark.csv", "w");
     if (f == NULL) {
-        fprintf(stderr, "Erreur : impossible de crÃ©er resultats_benchmark.csv\n");
+        fprintf(stderr, "Erreur : impossible de créer resultats_benchmark.csv\n");
         return 1;
     }
 
-    /* En-tete CSV */
+    /* En-tête CSV */
     fprintf(f, "structure;operation;n;distribution;temps_moy(s);ecart_type(s)\n");
 
     /* Boucle sur toutes les combinaisons */
     for (int d = 0; d < NB_DISTRIBUTIONS; d++) {
         for (int t = 0; t < NB_TAILLES; t++) {
-            int n = TAILLES[t];
+            int n = NB_TAILLES;
             Distribution dist = DISTRIBUTIONS[d];
 
             printf("Benchmark n=%6d | distribution=%-12s ...",

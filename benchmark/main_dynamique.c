@@ -18,17 +18,17 @@ int main(void)
            t->capacite);
     printf("--- Insertion des étudiants ---\n");
     
-    Date d1 = {5,  3, 2003};
-    Date d2 = {12, 7, 2002};
-    Date d3 = {20, 1, 2004};
-    Date d4 = {8,  9, 2003};
-    Date d5 = {15, 5, 2002};
+    Date d1 = {5,  3, 2007};
+    Date d2 = {12, 7, 2006};
+    Date d3 = {20, 1, 2005};
+    Date d4 = {8,  9, 2004};
+    Date d5 = {15, 5, 2003};
 
-    Etudiant *e1 = creer_etudiant(1001, 14.50f, "Ndiaye", "Moussa",  d1);
-    Etudiant *e2 = creer_etudiant(1002, 12.00f, "Diallo", "Fatou",   d2);
-    Etudiant *e3 = creer_etudiant(1003, 17.50f, "Sow",    "Ibou",    d3);
-    Etudiant *e4 = creer_etudiant(1004,  9.00f, "Fall",   "Awa",     d4);
-    Etudiant *e5 = creer_etudiant(1005, 15.75f, "Diop",   "Khadija", d5);
+    Etudiant *e1 = creer_etudiant(1001, 14.50, "NdIONE", "COURA",  d1);
+    Etudiant *e2 = creer_etudiant(1002, 12.00, "NDIAYE", "DETHIE",   d2);
+    Etudiant *e3 = creer_etudiant(1003, 13.00, "SENE", "AIDA",   d3);
+    Etudiant *e4 = creer_etudiant(1004,  9.00, "KANE", "MOUHAMED",  d4);
+    Etudiant *e5 = creer_etudiant(1005, 15.70, "THIAM", "AMINATA", d5);
 
     inserer_etudiant_dyn(t, e1);
     inserer_etudiant_dyn(t, e2);
@@ -45,18 +45,17 @@ int main(void)
     printf("--- Recherche par matricule (1003) ---\n");
     Etudiant *trouve = rechercher_par_matricule_dyn(t, 1003);
     if (trouve != NULL) {
-        printf("  TrouvÃ© : [%d] %s %s â€” moyenne : %.2f\n",
+        printf("  Trouvé : [%d] %s %s au moyenne : %.2f\n",
                trouve->matricule,
                trouve->nom,
                trouve->prenom,
                trouve->moyenne);
     } else {
-        printf("  Etudiant non trouvÃ©.\n");
+        printf("  Etudiant non trouvé.\n");
     }
-    printf("\n",);
     
     printf("--- Recherche par intervalle [10.00 , 15.00] ---\n");
-    rechercher_par_intervalle_dyn(t, 10.00f, 15.00f);
+    rechercher_par_intervalle_dyn(t, 10.00, 15.00);
     printf("\n");
 
     printf("--- Recherche par préfixe \"Di\" ---\n");
@@ -101,7 +100,7 @@ int main(void)
     printf("\n");
 
     liberer_tableau_dyn(t);
-    printf("MÃ©moire libérée avec succés.\n");
+    printf("Mémoire libérée avec succés.\n");
     printf("\n============================================\n");
     printf("   FIN DU PROGRAMME\n");
     printf("============================================\n");
