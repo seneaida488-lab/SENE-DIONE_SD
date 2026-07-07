@@ -57,7 +57,10 @@ SENE-DIONE_SD/
 │
 ├── data/                     # Jeux de données générés (.bin)
 ├── gitignore
-├── rapport/                  # Rapport LaTeX
+├── rapport/
+    ├── Latex # Rapport LaTeX
+    ├── Manuel # Rapport Manuel
+    ├── PDF      
 ├── Makefile                  # Compilation du projet
 └── README.md                 # Ce fichier
 ```
