@@ -1,5 +1,3 @@
-
-
 \documentclass[12pt,a4paper]{article}
 
 % ============================================================
@@ -26,7 +24,6 @@
 \usepackage{float}
 \usepackage{enumitem}
 \usepackage{tcolorbox}
-\usepackage{multirow}
 
 
 % ============================================================
@@ -450,6 +447,7 @@ fwrite(e->prenom, sizeof(char), len, f);
 \begin{table}[H]
 \centering
 \caption{Complexité temporelle des opérations par structure}
+\begin{threeparttable}
 \begin{tabular}{lccc}
 \toprule
 \textbf{Opération} & \textbf{Tab. statique} & \textbf{Tab. dynamique} & \textbf{Liste chaînée} \\
@@ -468,6 +466,7 @@ Min / Max / Moy    & $\Theta(n)$   & $\Theta(n)$         & $\Theta(n)$ \\
 \small
 \item $^*$ O(1) amorti sur $n$ insertions (analyse agrégée)
 \end{tablenotes}
+\end{threeparttable}
 \end{table}
 
 \subsubsection{Complexité spatiale}
@@ -513,10 +512,16 @@ Par le \textbf{théorème maître} (cas 2) avec $a=2$, $b=2$, $f(n)=n$ :
 n^{\log_2 2} = n^1 = n = f(n) \implies T(n) = \Theta(n \log n)
 \]
 
-En pire cas (données déjà triées, pivot toujours extrême) :
-\[
-T(n) = T(n-1) + O(n) \implies T(n) = O(n^2)
-\]
+Le pire cas $T(n) = O(n^2)$ survient lorsque la partition est
+systématiquement déséquilibrée, c'est-à-dire lorsque le pivot choisi
+tombe à une extrémité de l'intervalle à chaque appel récursif
+(par exemple si le pivot est toujours le premier élément et que les
+données sont déjà triées). Le choix du pivot au milieu de l'intervalle,
+utilisé dans notre implémentation, limite fortement ce risque et
+rapproche le comportement observé du cas moyen $\Theta(n \log n)$,
+y compris sur des données triées ; le pire cas reste néanmoins
+possible dans des configurations pathologiques (par exemple de
+nombreuses valeurs dupliquées).
 
 \subsubsection{Insertion tableau dynamique — O(1) amorti}
 
@@ -541,11 +546,16 @@ Le coût \textbf{amorti} par insertion est donc $\dfrac{3n}{n} = O(1)$.
 \midrule
 Uniforme    & $O(n^2)$      & $\Theta(n\log n)$ & $\Theta(n/2)$ \\
 Gaussienne  & $O(n^2)$      & $\Theta(n\log n)$ & $\Theta(n/2)$ \\
-Déjà triée  & $\Omega(n)$   & $O(n^2)$           & $\Theta(n/2)$ \\
-Inversée    & $O(n^2)$      & $O(n^2)$           & $\Theta(n/2)$ \\
+Déjà triée  & $\Omega(n)$   & $\Theta(n\log n)^{\dagger}$ & $\Theta(n/2)$ \\
+Inversée    & $O(n^2)$      & $\Theta(n\log n)^{\dagger}$ & $\Theta(n/2)$ \\
 \bottomrule
 \end{tabular}
 \end{table}
+
+\begin{center}
+\small $^{\dagger}$ Grâce au choix du pivot médian ; un pivot naïf
+(premier élément) donnerait $O(n^2)$ dans ces deux cas.
+\end{center}
 
 \subsection{Étude expérimentale}
 
@@ -555,10 +565,20 @@ Inversée    & $O(n^2)$      & $O(n^2)$           & $\Theta(n/2)$ \\
     \item \textbf{Tailles} : $n \in \{100,\ 1\,000,\ 10\,000,\ 100\,000\}$
     \item \textbf{Distributions} : uniforme, gaussienne, triée
     \item \textbf{Répétitions} : 10 mesures par configuration
-    \item \textbf{Horloge} : \texttt{clock\_gettime(CLOCK\_MONOTONIC)}
-          (précision nanoseconde)
+    \item \textbf{Horloge} : \texttt{clock()} (bibliothèque standard C,
+          précision de l'ordre de la milliseconde selon le système)
     \item \textbf{Résultats} : moyenne et écart-type calculés
 \end{itemize}
+
+\begin{remarque}
+Pour les petites tailles ($n=100$), la résolution de \texttt{clock()}
+peut être insuffisante pour distinguer des temps très courts, ce qui
+explique des mesures proches de zéro. Une horloge à plus haute
+résolution (\texttt{clock\_gettime(CLOCK\_MONOTONIC, ...)} sous
+Linux/POSIX, ou \texttt{QueryPerformanceCounter} sous Windows)
+donnerait une précision supérieure et pourra être envisagée dans
+une version future du benchmark.
+\end{remarque}
 
 \subsubsection{Conditions de mesure}
 
@@ -580,18 +600,96 @@ Langage                & C (standard C99) \\
 
 \subsubsection{Courbes de complexité}
 
-Les courbes sont présentées en échelle linéaire et logarithmique
-pour chaque opération. Chaque courbe superpose les trois structures
-afin de permettre une comparaison directe.
+Conformément au protocole expérimental, les visualisations suivantes
+sont présentées : temps d'exécution par opération (échelles linéaire
+et logarithmique), influence de la distribution des données, comparaison
+au modèle théorique, et facteur de ralentissement entre structures.
 
-\begin{remarque}
-Les courbes PNG générées par les scripts Python (\texttt{graphs/main.py})
-sont référencées ci-dessous. Inclure les fichiers
-\texttt{lineaire\_tri\_insertion.png},
-\texttt{log\_tri\_insertion.png}, etc. dans le dossier
-\texttt{rapport/figures/} avant de compiler.
-\end{remarque}
+\paragraph{Temps d'exécution par opération (linéaire et logarithmique)}
 
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.9\textwidth]{figures/lineaire_insertion.png}
+    \caption{Temps d'insertion en fonction de $n$ — échelle linéaire}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.9\textwidth]{figures/log_insertion.png}
+    \caption{Temps d'insertion en fonction de $n$ — échelle logarithmique}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.9\textwidth]{figures/lineaire_recherche.png}
+    \caption{Temps de recherche en fonction de $n$ — échelle linéaire}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.9\textwidth]{figures/log_recherche.png}
+    \caption{Temps de recherche en fonction de $n$ — échelle logarithmique}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.9\textwidth]{figures/lineaire_suppression.png}
+    \caption{Temps de suppression en fonction de $n$ — échelle linéaire}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.9\textwidth]{figures/log_suppression.png}
+    \caption{Temps de suppression en fonction de $n$ — échelle logarithmique}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.9\textwidth]{figures/lineaire_tri_insertion.png}
+    \caption{Temps de tri par insertion en fonction de $n$ — échelle linéaire}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.9\textwidth]{figures/log_tri_insertion.png}
+    \caption{Temps de tri par insertion en fonction de $n$ — échelle logarithmique}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.9\textwidth]{figures/lineaire_tri_rapide.png}
+    \caption{Temps de tri rapide en fonction de $n$ — échelle linéaire}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.9\textwidth]{figures/log_tri_rapide.png}
+    \caption{Temps de tri rapide en fonction de $n$ — échelle logarithmique}
+\end{figure}
+
+\paragraph{Influence de la distribution des données}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.9\textwidth]{figures/distribution_insertion.png}
+    \caption{Temps d'insertion selon la distribution des données, à $n$ fixé}
+\end{figure}
+
+\paragraph{Comparaison au modèle théorique}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.9\textwidth]{figures/comparaison_tri_rapide.png}
+    \caption{Temps de tri rapide mesuré comparé à la courbe théorique $n\log n$}
+\end{figure}
+
+\paragraph{Facteur de ralentissement entre structures}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.9\textwidth]{figures/histogramme_ralentissement.png}
+    \caption{Facteur de ralentissement entre la meilleure et la pire structure, par opération}
+\end{figure}
 % Décommenter et adapter selon vos vraies courbes :
 \begin{figure}[H]
     \centering
@@ -705,7 +803,7 @@ Masson.
 Le code source complet du projet est disponible publiquement à 
 l'adresse suivante :
 \begin{center}
-\url{https://github.com/TON\_USERNAME/SENE-DIONE\_SD}
+\url{https://github.com/TON_USERNAME/SENE-DIONE_SD}
 \end{center}
 
 \end{document}
