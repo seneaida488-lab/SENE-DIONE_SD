@@ -1,9 +1,16 @@
+#define _USE_MATH_DEFINES
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
 #include <time.h>
 #include "generateur_donnee.h"
+#include "../include/structure.h"
+
+void liberer_etudiant(Etudiant *e);
+
+Etudiant* creer_etudiant(int matricule, float moyenne, char *nom, char *prenom, Date d);
 
  float rand_float(float min, float max)
 {
@@ -12,30 +19,30 @@
 
  float rand_gaussien(float moy, float sigma)
 {
-    float u1 = ((float)rand() + 1.0f) / ((float)RAND_MAX + 1.0f);
-    float u2 = ((float)rand() + 1.0f) / ((float)RAND_MAX + 1.0f);
-
-    float z = sqrtf(-2.0f * logf(u1)) * cosf(2.0f * M_PI * u2);
+    float u1 = ((float)rand() + 1.0f) / ((float)RAND_MAX + 1.0);
+    float u2 = ((float)rand() + 1.0f) / ((float)RAND_MAX + 1.0);
+    float z = sqrtf(-2.0 * log(u1)) * cosf(2.0 * M_PI * u2);
 
     float valeur = moy + sigma * z;
 
     /* Borner entre 0 et 20 */
-    if (valeur < 0.0f)  valeur = 0.0f;
-    if (valeur > 20.0f) valeur = 20.0f;
+    if (valeur < 0.0)  valeur = 0.0;
+    if (valeur > 20.0) valeur = 20.0;
 
     return valeur;
 }
 
  Etudiant* creer_etudiant_simple(int matricule, float moyenne)
 {
-    char nom[40];
+    char nom[50];
     char prenom[50];
-    Date d = {1, 1, 2000};
+    Date d_defaut = {1, 1, 2006};
 
     snprintf(nom,    sizeof(nom),    "Etudiant%d", matricule);
     snprintf(prenom, sizeof(prenom), "Prenom%d",   matricule);
 
-    return creer_etudiant(matricule, moyenne, nom, prenom, d);
+    return creer_etudiant(matricule, moyenne, nom, prenom,  d_defaut);
+    return NULL;
 }
 
 Etudiant** generer_etudiants(int n, Distribution dist)
@@ -53,19 +60,19 @@ Etudiant** generer_etudiants(int n, Distribution dist)
 
         switch (dist) {
             case UNIFORME:
-                moyenne = rand_float(0.0f, 20.0f);
+                moyenne = rand_float(0.0, 20.0);
                 break;
 
             case GAUSSIENNE:
-                moyenne = rand_gaussien(10.0f, 3.0f);
+                moyenne = rand_gaussien(10.0, 3.0);
                 break;
 
             case TRIEE:
-                moyenne = (float)i * 20.0f / (float)(n - 1);
+                moyenne = (float)i * 20.0 / (float)(n - 1);
                 break;
 
             case INVERSE:
-                moyenne = 20.0f - (float)i * 20.0f / (float)(n - 1);
+                moyenne = 20.0 - (float)i * 20.0 / (float)(n - 1);
                 break;
         }
 
@@ -78,8 +85,7 @@ Etudiant** generer_etudiants(int n, Distribution dist)
             return NULL;
         }
     }
-
-    return tab;
+   return tab;
 }
 
 void liberer_etudiants(Etudiant **tab, int n)

@@ -58,12 +58,12 @@ int main(void)
     rechercher_par_intervalle_dyn(t, 10.00, 15.00);
     printf("\n");
 
-    printf("--- Recherche par préfixe \"Di\" ---\n");
-    rechercher_par_prefixe_dyn(t, "Di");
+    printf("--- Recherche par préfixe \"SE\" ---\n");
+    rechercher_par_prefixe_dyn(t, "SE");
     printf("\n");
 
     printf("--- Mise a jour moyenne de l'étudiant 1002 ---\n");
-    modifier_moyenne_dyn(t, 1002, 16.00f);
+    modifier_moyenne_dyn(t, 1002, 16.00);
     printf("\n");
     printf("--- Tri par insertion (moyenne croissante) ---\n");
     tri_insertion_dyn(t);

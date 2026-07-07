@@ -42,10 +42,11 @@ SENE-DIONE_SD/
 │   ├── main_structure.c      # Menu interactif général
 │   ├── main_statique.c       # Test tableau statique
 │   ├── main_dynamique.c      # Test tableau dynamique
-│   ├── main_liste.c          # Test liste doublement chaînée
+│   ├── main_liste.c          # Test liste doublement chaînée 
+│   ├──main.principal.c      # Test tout les mains.c  
 │   ├── generateur_donnee.h   # Générateur de jeux de données
 │   ├── generateur_donnee.c   # Distributions : uniforme, gaussienne, triée
-│   └── main.c                # Benchmark complet (mesures de temps)
+│   └── main-bench.c                # Benchmark complet (mesures de temps)
 │
 ├── graphs/                   # Scripts Python pour les courbes
 │   ├── main.py               # Lance tous les scripts de courbes
@@ -55,6 +56,7 @@ SENE-DIONE_SD/
 │   └── courbe_comparaison.py # Empirique vs théorique
 │
 ├── data/                     # Jeux de données générés (.bin)
+├── gitignore
 ├── rapport/                  # Rapport LaTeX
 ├── Makefile                  # Compilation du projet
 └── README.md                 # Ce fichier
@@ -77,13 +79,16 @@ make all
 ```
 
 ### Compiler une cible spécifique
-
+main_principal: gcc benchmark/main_principal.c benchmark/generateur_donnee.c src/structure.c src/tableau_statique.c src/tableau_dynamique.c src/liste_chainee.c -o benchmark/main_principal.exe
+main_bench: gcc -Wall -Wextra -o bench src/structure.c src/tableau_statique.c src/tableau_dynamique.c src/liste_chainee.c benchmark/generateur_donnee.c benchmark/main_bench.c -I include -I benchmark -lm ; if ($?) { .\bench.exe }
+### Avec Makefile
 ```bash
 make structure     # menu interactif
 make bench          # benchmark
 make main_statique  # test tableau statique
 make main_dynamique # test tableau dynamique
 make main_chainee     # test liste chaînée
+make main_principal  # Test tout les mains.c
 ```
 
 ### Nettoyer les fichiers générés
@@ -95,7 +100,8 @@ make clean
 ---
 
 ## Exécution
-
+main_principal: benchmark/main_principal.exe
+main_bench: .\bench.exe
 ### Menu interactif (système de scolarité)
 
 ```bash
@@ -110,13 +116,14 @@ modifier, supprimer des étudiants et de sauvegarder les données.
 ```bash
 ./main_statique    # test tableau statique
 ./main_dynamique   # test tableau dynamique
-./main_chainee       # test liste doublement chaînée
+./main_chainee       # test liste doublement 
+./main_structure   # menu interactif
 ```
 
 ### Lancer le benchmark
 
 ```bash
-./bench
+./bench.exe
 ```
 
 Génère automatiquement `resultats_benchmark.csv` avec les temps

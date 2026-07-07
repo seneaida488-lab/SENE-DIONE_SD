@@ -3,6 +3,9 @@
 
 #include "../include/structure.h"
 
+void liberer_etudiant(Etudiant *e);
+Etudiant* creer_etudiant(int matricule, float moyenne, char *nom, char *prenom, Date d);
+
 typedef struct Noeud {
     Etudiant      *etudiant;  /* pointeur vers les donnees        */
     struct Noeud  *prec;      /* pointeur vers le noeud précédent */

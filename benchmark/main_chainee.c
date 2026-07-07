@@ -12,8 +12,8 @@ void vider_buffer(void)
 void afficher_menu(void)
 {
     printf("\n============================================\n");
-    printf("   SYSTEME DE GESTION DE SCOLARITÃ‰\n");
-    printf("   Structure : Liste Doublement ChaÃ®nÃ©e\n");
+    printf("   SYSTEME DE GESTION DE SCOLARITÉ\n");
+    printf("   Structure : Liste Doublement Chainée\n");
     printf("============================================\n");
     printf("  1.  Ajouter un etudiant en tete\n");
     printf("  2.  Ajouter un etudiant en queue\n");

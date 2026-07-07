@@ -13,12 +13,12 @@ GRAPHS    = graphs
 SRCS_COMMUNS = $(SRC)/structure.c \
                $(SRC)/tableau_statique.c \
                $(SRC)/tableau_dynamique.c \
-               $(SRC)/liste_chainee.c
+               $(SRC)/liste_chainee.c \
 
 # ============================================================
 # CIBLE PAR DÉFAUT : compiler tout
 # ============================================================
-all: main_structure main_bench main_statique main_dynamique main_liste main_unique
+all: main_structure main_bench main_statique main_dynamique main_liste main_principal
 
 # ============================================================
 # PROGRAMME PRINCIPAL — menu interactif scolarité
@@ -74,13 +74,12 @@ main_liste: $(SRCS_COMMUNS) $(BEN)/main_liste.c
 # ============================================================
 # MAIN UNIQUE — regroupe les 3 structures dans un seul menu
 # ============================================================
-main_unique: $(SRCS_COMMUNS) $(BEN)/generateur_donnee.c $(BEN)/main_unique.c
-	$(CC) $(CFLAGS) -o main_unique \
+main_principal: $(SRCS_COMMUNS)  $(BEN)/main_principal.c
+	$(CC) $(CFLAGS) -o main_principal \
 		$(SRCS_COMMUNS) \
-		$(BEN)/generateur_donnee.c \
-		$(BEN)/main_unique.c \
+		$(BEN)/main_principal.c \
 		$(LDFLAGS)
-	@echo ">>> main_unique compilé"
+	@echo ">>> main_principal compilé"
 
 # ============================================================
 # LANCER LE BENCHMARK ET GÉNÉRER LES COURBES
@@ -97,7 +96,7 @@ courbes: run_bench
 # NETTOYAGE
 # ============================================================
 clean:
-	rm -f main_structure main_ssbench main_statique main_dynamique main_liste main_unique
+	rm -f main_structure main_ssbench main_statique main_dynamique main_liste main_principal
 	rm -f *.bin *.csv
 	rm -f $(GRAPHS)/*.png
 	@echo ">>> Nettoyage terminé"
@@ -116,6 +115,7 @@ help:
 	@echo "  make run_bench     — lance le benchmark"
 	@echo "  make courbes       — lance benchmark + génère les courbes"
 	@echo "  make clean         — supprime les exécutables et fichiers générés"
+    @echo "  make main_principal — compile le main principal" 
 
-.PHONY: all main_structure main_bench main_statique main_dynamique main_liste main_unique \
+.PHONY: all main_structure main_bench main_statique main_dynamique main_liste main_principal \
         run_bench courbes clean help

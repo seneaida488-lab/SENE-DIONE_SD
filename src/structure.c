@@ -2,10 +2,8 @@
 #include<stdlib.h>
 #include<string.h>
 #include "../include/structure.h"
-int main(){
-Note* creer_note(int matricule, float valeur, char *matiere,
-                 char *appreciation, Date date, Cours *cours)
-{
+
+Note* creer_note(int matricule, float valeur, char *matiere, char *appreciation, Date date, Cours *cours){
     Note *n = malloc(sizeof(Note));
     if (n == NULL) {
         fprintf(stderr, "Erreur malloc Note\n");
@@ -124,8 +122,10 @@ Etudiant* creer_etudiant(int matricule, float moyenne,
 
     e->matricule = matricule;
     e->moyenne   = moyenne;
+
     strncpy(e->nom, nom, sizeof(e->nom) - 1);
     e->nom[sizeof(e->nom) - 1] = '\0';
+    
     e->prenom = malloc(strlen(prenom) + 1);
     if (e->prenom == NULL) {
         fprintf(stderr, "Erreur malloc prenom\n");
@@ -199,6 +199,4 @@ void liberer_etudiant(Etudiant *e)
     free(e->prenom);
     e->prenom = NULL;
     free(e);
-}
-return 0;
 }
