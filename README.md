@@ -49,7 +49,7 @@ SENE-DIONE_SD/
 │   └── main-bench.c                # Benchmark complet (mesures de temps)
 │
 ├── graphs/                   # Scripts Python pour les courbes
-│   ├── main.py               # Lance tous les scripts de courbes
+│   ├── courbe-rellentissement.py    # Lance tous les scripts de courbes
 │   ├── courbe_lineaire.py    # Courbes temps vs n (échelle linéaire)
 │   ├── courbe_log.py         # Courbes temps vs n (échelle logarithmique)
 │   ├── courbe_distribution.py# Courbes par distribution des données
