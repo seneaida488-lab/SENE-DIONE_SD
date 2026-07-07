@@ -103,7 +103,7 @@ make clean
 ---
 
 ## Exécution
-main_principal: benchmark/main_principal.exe
+main_principal: benschmark/main_principal.exe
 main_bench: .\bench.exe
 ### Menu interactif (système de scolarité)
 
