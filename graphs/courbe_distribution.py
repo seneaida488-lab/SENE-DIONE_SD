@@ -53,8 +53,8 @@ for op in operations:
                 moyennes.append(0)
                 erreurs.append(0)
             else:
-                moyennes.append(sous_df["temps_moy(s)"].values[0] * 1000)
-                erreurs.append(sous_df["ecart_type(s)"].values[0] * 1000)
+                moyennes.append(sous_df["temps_moy(s)"].values[0] )
+                erreurs.append(sous_df["ecart_type(s)"].values[0] )
 
         ax.bar(
             x + offset + idx * width,

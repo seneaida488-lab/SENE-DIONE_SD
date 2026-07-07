@@ -14,12 +14,20 @@ df = pd.read_csv(fichier, sep=";")
 os.makedirs("graphs", exist_ok=True)
 
 complexites = {
-    "insertion"    : ("O(1) amorti", lambda n, a: np.full_like(n, a, dtype=float)),
-    "recherche"    : ("O(n)",        lambda n, a: a * n),
-    "suppression"  : ("O(n)",        lambda n, a: a * n),
-    "tri_insertion": ("O(n²)",       lambda n, a: a * n**2),
-    "tri_rapide"   : ("O(n log n)",  lambda n, a: a * n * np.log2(n)),
-    "tri_bulles"   : ("O(n²)",       lambda n, a: a * n**2),
+    ("insertion", "TAB_STAT")     : ("O(n)",       lambda n, a: a * n),
+    ("insertion", "TAB_DYN")      : ("O(1) amorti", lambda n, a: np.full_like(n, a, dtype=float)),
+    ("insertion", "LISTE")        : ("O(1)",        lambda n, a: np.full_like(n, a, dtype=float)),
+    ("recherche", "TAB_STAT")     : ("O(n)", lambda n, a: a * n),
+    ("recherche", "TAB_DYN")      : ("O(n)", lambda n, a: a * n),
+    ("recherche", "LISTE")        : ("O(n)", lambda n, a: a * n),
+    ("suppression", "TAB_STAT")   : ("O(n)", lambda n, a: a * n),
+    ("suppression", "TAB_DYN")    : ("O(n)", lambda n, a: a * n),
+    ("suppression", "LISTE")      : ("O(n)", lambda n, a: a * n),
+    ("tri_insertion", "TAB_STAT") : ("O(n²)", lambda n, a: a * n**2),
+    ("tri_insertion", "TAB_DYN")  : ("O(n²)", lambda n, a: a * n**2),
+    ("tri_insertion", "LISTE")    : ("O(n²)", lambda n, a: a * n**2),
+    ("tri_rapide", "TAB_STAT")    : ("O(n log n)", lambda n, a: a * n * np.log2(n)),
+    ("tri_rapide", "TAB_DYN")     : ("O(n log n)", lambda n, a: a * n * np.log2(n)),
 }
 
 structures = df["structure"].unique()
@@ -55,8 +63,8 @@ for op in operations:
             continue
 
         ns   = sous_df["n"].values.astype(float)
-        moy  = sous_df["temps_moy(s)"].values * 1000
-        ecar = sous_df["ecart_type(s)"].values * 1000
+        moy  = sous_df["temps_moy(s)"]
+        ecar = sous_df["ecart_type(s)"]
 
         couleur = couleurs_struct.get(struct, "gray")
         nom     = noms.get(struct, struct)

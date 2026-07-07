@@ -50,8 +50,8 @@ for op in operations:
         if sous_df.empty:
             continue
 
-        moy  = sous_df["temps_moy(s)"] * 1000  # convertir en ms
-        ecar = sous_df["ecart_type(s)"] * 1000
+        moy  = sous_df["temps_moy(s)"]   # convertir en ms
+        ecar = sous_df["ecart_type(s)"] 
         ns   = sous_df["n"]
 
         couleur = couleurs.get(struct, "gray")

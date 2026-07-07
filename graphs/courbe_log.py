@@ -44,8 +44,8 @@ for op in operations:
         if sous_df.empty:
             continue
 
-        moy  = sous_df["temps_moy(s)"] * 1000
-        ecar = sous_df["ecart_type(s)"] * 1000
+        moy  = sous_df["temps_moy(s)"] 
+        ecar = sous_df["ecart_type(s)"] 
         ns   = sous_df["n"]
 
         ax.errorbar(
