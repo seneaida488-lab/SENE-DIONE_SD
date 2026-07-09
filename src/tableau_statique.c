@@ -31,8 +31,8 @@ int insertionTableau(Etudiant tab[], int *n, Etudiant e)
 
     /* Décaler les éléments vers la droite */
     for (i = *n; i > pos; i--) {
-        tab[i].matricule = tab[i-1].matricule;
-    }
+    tab[i] = tab[i-1];   /* décale TOUT l'étudiant, pas juste le matricule */
+}
 
     tab[pos] = e;
     (*n)++;

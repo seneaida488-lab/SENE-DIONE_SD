@@ -1,24 +1,55 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <math.h>
+#include <time.h>
 
 #include "../include/tableau_statique.h"
 #include "../include/tableau_dynamique.h"
 #include "../include/liste_chainee.h"
 #include "generateur_donnee.h"
 
-void vider_buffer(void)
-{
-    int c;
-    while ((c = getchar()) != '\n' && c != EOF);
+
+
+#define NB_REPETITIONS  10
+#define NB_TAILLES       4
+#define NB_DISTRIBUTIONS 3
+
+void nettoyerEcran() {
+    // Nettoyage d'écran compatible (Windows/Linux)
+    #ifdef _WIN32
+        system("cls");
+    #else
+        system("clear");
+    #endif
+}
+
+void afficherHeader() {
+   
+
+    printf("################################################################\n");
+    printf("               UNIVERSITE IBA DER THIAM DE THIES                \n");
+    printf("                  UFR Sciences et Technologies                  \n");
+    printf("            Departement de Mathematiques et Informatique        \n");
+    printf("################################################################\n\n");
+    printf("                  Systeme de Gestion de Scolaritee            \n\n");
+    printf("      Conception, Implementation et Evaluation Comparative      \n");
+    printf("                  de Structures de Donnees en C               \n\n");
+    printf("##############################################################\n\n");
+    printf("     Projet  Algorithmique et Structures de Donnees             \n");
+    printf("     Filiere : Licence 2 Mathematiques-Informatique (LMI 2)     \n");
+    printf("     Annee universitaire : 2025-2026                            \n\n");
+    printf("     Binome                               Enseignant :                                      \n");
+    printf("     AIDA SENE                    Dr Abdoulaye DIALLO       \n");
+    printf("     COURA NDIONE                                        \n\n");
+    printf("     Annee universitaire : 2025-2026                             \n");
+    printf("     Rendu: JUILLET 2026                                        \n");
+    printf("##############################################################\n\n");
 }
 
 void afficher_menu_principal(void)
 {
-    printf("\n============================================\n");
-    printf("   SYSTÈME DE GESTION DE SCOLARITÉ\n");
-    printf("   Projet LMI ASD 2026\n");
-    printf("============================================\n");
+    printf("\n***********************************\n");
     printf("  --- Démonstrations automatiques ---\n");
     printf("  1. Démo Tableau Statique\n");
     printf("  2. Démo Tableau Dynamique\n");
@@ -30,24 +61,32 @@ void afficher_menu_principal(void)
     printf("  --- Outils ---\n");
     printf("  7. Lancer le Benchmark complet\n");
     printf("  0. Quitter\n");
-    printf("============================================\n");
+    printf("********************************************\n");
     printf("Votre choix : ");
 }
-
 
 void demo_tableau_statique(void)
 {
     printf("\n========== TABLEAU STATIQUE ==========\n\n");
 
-    Etudiant tab[100000];
+    static Etudiant tab[100000];   /* static : evite le depassement de pile */
     int n = 0, i;
 
     Etudiant e1, e2, e3, e4, e5;
     e1.matricule = 1001; e1.moyenne = 14.50; strcpy(e1.nom, "Ndiaye");
-    e2.matricule = 1002; e2.moyenne = 12.00; strcpy(e2.nom, "Sène");
+    e1.prenom = malloc(strlen("Dethie") + 1); strcpy(e1.prenom, "Dethie");
+
+    e2.matricule = 1002; e2.moyenne = 12.00; strcpy(e2.nom, "Sene");
+    e2.prenom = malloc(strlen("Aida") + 1); strcpy(e2.prenom, "Aida");
+
     e3.matricule = 1003; e3.moyenne = 17.50; strcpy(e3.nom, "Thiam");
-    e4.matricule = 1004; e4.moyenne =  9.00; strcpy(e4.nom, "Kane");
+    e3.prenom = malloc(strlen("Anta") + 1); strcpy(e3.prenom, "Anta");
+
+    e4.matricule = 1004; e4.moyenne =  9.00; strcpy(e4.nom, "Dione");
+    e4.prenom = malloc(strlen("Coura") + 1); strcpy(e4.prenom, "Coura");
+
     e5.matricule = 1005; e5.moyenne = 15.75; strcpy(e5.nom, "Diop");
+    e5.prenom = malloc(strlen("Mama") + 1); strcpy(e5.prenom, "Mama");
 
     insertionTableau(tab, &n, e1);
     insertionTableau(tab, &n, e2);
@@ -93,11 +132,11 @@ void demo_tableau_dynamique(void)
     TableauDyn *t = creer_tableau_dyn();
     Date d = {1, 1, 2006};
 
-    char *noms[]    = {"Ndiaye","Sène","Thiam","Kane","Ndione","Diop"};
-    char *prenoms[] = {"Déthié","Aida","Aninata","Mouhamed","Coura","Baba"};
-    float moys[]    = {14.5, 15.0, 17.5, 19.0, 16.0, 18.5};
-
-    for (int i = 0; i < 6; i++) {
+    char *noms[]    = {"Ndiaye","Sène","Thiam","Ndione","Diop"};
+    char *prenoms[] = {"Déthié","Aida","Anta","Coura","Mama"};
+    float moys[]    = {14.5, 15.0, 17.5, 16.0, 18.5};
+     int i;
+    for (i = 0; i < 5; i++) {
         Etudiant *e = creer_etudiant(1000 + i, moys[i], noms[i], prenoms[i], d);
         inserer_etudiant_dyn(t, e);
     }
@@ -137,9 +176,9 @@ void demo_liste_chainee(void)
 
     inserer_en_queue(l, creer_etudiant(1001, 14.5, "Ndiaye", "Déthié",  d));
     inserer_en_queue(l, creer_etudiant(1002, 12.0, "Sène", "Aida",   d));
-    inserer_en_queue(l, creer_etudiant(1003, 17.5, "Thiam",    "Aminata",    d));
-    inserer_en_tete (l, creer_etudiant(1004,  9.0, "Kane",   "Mouhamed",     d));
-    inserer_en_queue(l, creer_etudiant(1005, 15.0, "Diop",   "Baba", d));
+    inserer_en_queue(l, creer_etudiant(1003, 17.5, "Thiam",    "Anta",    d));
+    inserer_en_tete (l, creer_etudiant(1004,  9.0, "Dione",   "Coura",     d));
+    inserer_en_queue(l, creer_etudiant(1006, 16.0, "Diop",   "Mama", d));
 
     afficher_liste(l);
     printf("\n--- Affichage inverse ---\n");
@@ -168,7 +207,7 @@ void demo_liste_chainee(void)
 void interface_tableau_statique(void)
 {
     static Etudiant tab[100000];
-    static int n = 0;
+    static int n = 0, i;
     int choix = -1;
 
     while (choix != 0) {
@@ -179,26 +218,27 @@ void interface_tableau_statique(void)
         printf("9. Statistiques            0. Retour\n");
         printf("Choix : ");
         scanf("%d", &choix);
-        vider_buffer();
+        nettoyerEcran();
 
         switch (choix) {
             case 1: {
                 Etudiant e;
                 printf("Matricule : "); 
                 scanf("%d", &e.matricule);
-                vider_buffer();
+                nettoyerEcran();
+                while(getchar()!='\n');
                 printf("Nom : ");
                 fgets(e.nom, sizeof(e.nom), stdin);
                 e.nom[strcspn(e.nom, "\n")] = '\0';
                 printf("Moyenne : ");
                  scanf("%f", &e.moyenne);
-                  vider_buffer();
+                  nettoyerEcran();
                 if (insertionTableau(tab, &n, e))
                     printf("Etudiant ajoute.\n");
                 break;
             }
             case 2:
-                for (int i = 0; i < n; i++)
+                for (i = 0; i < n; i++)
                     printf("  [%d] matricule:%d | %s | moyenne:%.2f\n",
                            i, tab[i].matricule, tab[i].nom, tab[i].moyenne);
                 break;
@@ -206,7 +246,7 @@ void interface_tableau_statique(void)
                 int matricule;
                 printf("Matricule : "); 
                 scanf("%d", &matricule); 
-                vider_buffer();
+                nettoyerEcran();
                 int pos = RechercheCleprimaire(tab, n, matricule);
                 if (pos > -1)
                     printf("Trouve : %s — %.2f\n", tab[pos].nom, tab[pos].moyenne);
@@ -220,7 +260,7 @@ void interface_tableau_statique(void)
                 scanf("%f", &min);
                 printf("Max : "); 
                 scanf("%f", &max); 
-                vider_buffer();
+                nettoyerEcran();
                 RechercheParIntervalle(tab, n, min, max);
                 printf("\n");
                 break;
@@ -238,7 +278,7 @@ void interface_tableau_statique(void)
                 int matricule;
                 printf("Matricule : "); 
                 scanf("%d", &matricule); 
-                vider_buffer();
+                nettoyerEcran();
                 suppressionCleprimaire(tab, &n, matricule);
                 break;
             }
@@ -285,7 +325,7 @@ void interface_tableau_dynamique(void)
         printf("0. Retour\n");
         printf("Choix : ");
         scanf("%d", &choix);
-        vider_buffer();
+        nettoyerEcran();
 
         switch (choix) {
             case 1: {
@@ -295,7 +335,7 @@ void interface_tableau_dynamique(void)
                 Date date;
                 printf("Matricule : "); 
                 scanf("%d", &matricule); 
-                vider_buffer();
+                nettoyerEcran();
                 printf("Nom : "); fgets(nom, sizeof(nom), stdin);
                 nom[strcspn(nom, "\n")] = '\0';
                 printf("Prenom : "); 
@@ -303,10 +343,10 @@ void interface_tableau_dynamique(void)
                 prenom[strcspn(prenom, "\n")] = '\0';
                 printf("Moyenne : "); 
                 scanf("%f", &moyenne); 
-                vider_buffer();
+                nettoyerEcran();
                 printf("Jour Mois Annee : ");
                 scanf("%d %d %d", &date.jour, &date.mois, &date.annee);
-                vider_buffer();
+                nettoyerEcran();
 
                 Etudiant *e = creer_etudiant(matricule, moyenne, nom, prenom, date);
                 inserer_etudiant_dyn(t, e);
@@ -319,7 +359,7 @@ void interface_tableau_dynamique(void)
             case 3: {
                 int matricule;
                 printf("Matricule : ");
-                scanf("%d", &matricule); vider_buffer();
+                scanf("%d", &matricule); nettoyerEcran();
                 Etudiant *e = rechercher_par_matricule_dyn(t, matricule);
                 if (e) printf("Trouve : %s %s — %.2f\n", e->nom, e->prenom, e->moyenne);
                 else printf("Non trouve.\n");
@@ -328,7 +368,7 @@ void interface_tableau_dynamique(void)
             case 4: {
                 float min, max;
                 printf("Min : "); scanf("%f", &min);
-                printf("Max : "); scanf("%f", &max); vider_buffer();
+                printf("Max : "); scanf("%f", &max); nettoyerEcran();
                 rechercher_par_intervalle_dyn(t, min, max);
                 break;
             }
@@ -344,7 +384,7 @@ void interface_tableau_dynamique(void)
                 int matricule;
                 printf("Matricule : ");
                 scanf("%d", &matricule); 
-                vider_buffer();
+                nettoyerEcran();
                 supprimer_par_matricule_dyn(t, matricule);
                 break;
             }
@@ -353,7 +393,7 @@ void interface_tableau_dynamique(void)
                 float nouvelle_moyenne;
                 printf("Matricule : "); scanf("%d", &matricule);
                 printf("Nouvelle moyenne : "); scanf("%f", &nouvelle_moyenne);
-                vider_buffer();
+                nettoyerEcran();
                 modifier_moyenne_dyn(t, matricule, nouvelle_moyenne);
                 break;
             }
@@ -418,7 +458,7 @@ void interface_liste_chainee(void)
         printf("0. Retour\n");
         printf("Choix : ");
         scanf("%d", &choix);
-        vider_buffer();
+        nettoyerEcran();
 
         switch (choix) {
             case 1:
@@ -429,7 +469,7 @@ void interface_liste_chainee(void)
                 Date date;
                 printf("Matricule : ");
                  scanf("%d", &matricule); 
-                 vider_buffer();
+                 nettoyerEcran();
                 printf("Nom : "); 
                 fgets(nom, sizeof(nom), stdin);
                 nom[strcspn(nom, "\n")] = '\0';
@@ -438,10 +478,10 @@ void interface_liste_chainee(void)
                 prenom[strcspn(prenom, "\n")] = '\0';
                 printf("Moyenne : "); 
                 scanf("%f", &moyenne);
-                 vider_buffer();
+                 nettoyerEcran();
                 printf("Jour Mois Annee : ");
                 scanf("%d %d %d", &date.jour, &date.mois, &date.annee);
-                vider_buffer();
+                nettoyerEcran();
 
                 Etudiant *e = creer_etudiant(matricule, moyenne, nom, prenom, date);
                 if (choix == 1) { inserer_en_tete(l, e); printf("Ajoute en tete.\n"); }
@@ -456,7 +496,7 @@ void interface_liste_chainee(void)
                 break;
             case 5: {
                 int matricule;
-                printf("Matricule : "); scanf("%d", &matricule); vider_buffer();
+                printf("Matricule : "); scanf("%d", &matricule); nettoyerEcran();
                 Etudiant *e = rechercher_matricule_liste(l, matricule);
                 if (e) printf("Trouve : %s %s — %.2f\n", e->nom, e->prenom, e->moyenne);
                 else printf("Non trouve.\n");
@@ -465,7 +505,7 @@ void interface_liste_chainee(void)
             case 6: {
                 float min, max;
                 printf("Min : "); scanf("%f", &min);
-                printf("Max : "); scanf("%f", &max); vider_buffer();
+                printf("Max : "); scanf("%f", &max); nettoyerEcran();
                 rechercher_intervalle_liste(l, min, max);
                 break;
             }
@@ -478,7 +518,7 @@ void interface_liste_chainee(void)
             }
             case 8: {
                 int matricule;
-                printf("Matricule : "); scanf("%d", &matricule); vider_buffer();
+                printf("Matricule : "); scanf("%d", &matricule); nettoyerEcran();
                 supprimer_matricule_liste(l, matricule);
                 break;
             }
@@ -533,14 +573,21 @@ void lancer_benchmark(void)
 }
 
 
+
 int main(void)
 {
+    /* ========== MAIN ========== */
+    nettoyerEcran();
+    afficherHeader();
+    printf("Appuyez sur Entree pour initialiser le systeme...");
+    getchar();
+nettoyerEcran();
     int choix = -1;
 
     while (choix != 0) {
         afficher_menu_principal();
         scanf("%d", &choix);
-        vider_buffer();
+        nettoyerEcran();
 
         switch (choix) {
             case 1: demo_tableau_statique();          break;
