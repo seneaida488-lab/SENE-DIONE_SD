@@ -45,14 +45,19 @@ noms = {
 }
 
 for op in operations:
-    if op not in complexites:
-        continue
-
-    label_theo, f_theo = complexites[op]
 
     fig, ax = plt.subplots(figsize=(9, 5))
+    au_moins_une_courbe = False
 
     for struct in structures:
+
+        # La complexite depend a la fois de l'operation ET de la structure
+        cle = (op, struct)
+        if cle not in complexites:
+            continue
+
+        label_theo, f_theo = complexites[cle]
+
         sous_df = df[
             (df["operation"]    == op)     &
             (df["structure"]    == struct) &
@@ -63,11 +68,13 @@ for op in operations:
             continue
 
         ns   = sous_df["n"].values.astype(float)
-        moy  = sous_df["temps_moy(s)"]
-        ecar = sous_df["ecart_type(s)"]
+        moy  = sous_df["temps_moy(s)"].values
+        ecar = sous_df["ecart_type(s)"].values
 
         couleur = couleurs_struct.get(struct, "gray")
         nom     = noms.get(struct, struct)
+
+        au_moins_une_courbe = True
 
         # Courbe empirique
         ax.errorbar(
@@ -80,7 +87,7 @@ for op in operations:
             markersize=6,
             capsize=4
         )
-        
+
         try:
             valeur_theo_1 = f_theo(ns[-1:], 1.0)[0]
             if valeur_theo_1 > 0:
@@ -101,6 +108,10 @@ for op in operations:
             linewidth=1.2,
             label=f"{nom} ({label_theo} théorique)"
         )
+
+    if not au_moins_une_courbe:
+        plt.close()
+        continue
 
     ax.set_title(
         f"Empirique vs théorique — opération : {op}\n(distribution uniforme)",
