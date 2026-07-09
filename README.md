@@ -84,7 +84,7 @@ make all
 ### Compiler une cible spécifique
 main_principal: gcc benchmark/main_principal.c benchmark/generateur_donnee.c src/structure.c src/tableau_statique.c src/tableau_dynamique.c src/liste_chainee.c -o benchmark/main_principal.exe
 main_bench: gcc -Wall -Wextra -o bench src/structure.c src/tableau_statique.c src/tableau_dynamique.c src/liste_chainee.c benchmark/generateur_donnee.c benchmark/main_bench.c -I include -I benchmark -lm ; if ($?) { .\bench.exe }
-### Avec Makefile
+### Avec Makefile   
 ```bash
 make structure     # menu interactif
 make bench          # benchmark
@@ -92,7 +92,7 @@ make main_statique  # test tableau statique
 make main_dynamique # test tableau dynamique
 make main_chainee     # test liste chaînée
 make main_principal  # Test tout les mains.c
-```
+``` 
 
 ### Nettoyer les fichiers générés
 
@@ -103,11 +103,11 @@ make clean
 ---
 
 ## Exécution
-main_principal: benschmark/main_principal.exe
+main_principal: benschmark/main_principal.exe       
 main_bench: .\bench.exe
 ### Menu interactif (système de scolarité)
 
-```bash
+```bash 
 ./structure
 ```
 
