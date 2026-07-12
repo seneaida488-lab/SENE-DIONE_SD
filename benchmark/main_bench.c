@@ -85,28 +85,6 @@ void bench_tableau_statique(int n, Distribution dist, FILE *f)
     int r, i, taille;
     static Etudiant T[100000];
 
-    /* --- INSERTION --- */
-    printf("    [TAB_STAT] debut insertion (n=%d)\n", n); fflush(stdout);
-    for (r = 0; r < NB_REPETITIONS; r++) {
-        Etudiant **tab = generer_etudiants(n, dist);
-        if (tab == NULL) continue;
-
-        taille = 0;
-        t_debut = get_temps();
-        for (i = 0; i < n; i++)
-            insertionTableau(T, &taille, *tab[i]);
-        t_fin = get_temps();
-        temps[r] = (t_fin - t_debut) * 1000.0;
-
-        for (i = 0; i < n; i++) free(tab[i]);
-        free(tab);
-    }
-    printf("    [TAB_STAT] fin insertion\n"); fflush(stdout);
-    moy  = calcul_moyenne(temps, NB_REPETITIONS);
-    ecar = calcul_ecart_type(temps, NB_REPETITIONS, moy);
-    fprintf(f, "TAB_STAT;insertion;%d;%s;%.9f;%.9f\n",
-            n, nom_distribution(dist), moy, ecar);
-
     /* --- RECHERCHE --- */
     printf("    [TAB_STAT] debut Recherche\n");fflush(stdout);
     for (r = 0; r < NB_REPETITIONS; r++) {
@@ -205,26 +183,7 @@ void bench_tableau_statique(int n, Distribution dist, FILE *f)
     double temps[NB_REPETITIONS];
     double t_debut, t_fin, moy, ecar;
 
-    /* --- INSERTION --- */
     int r;
-    for ( r = 0; r < NB_REPETITIONS; r++) {
-        Etudiant **tab = generer_etudiants(n, dist);
-        TableauDyn *t   = creer_tableau_dyn();
-
-        t_debut = get_temps();
-        int i;
-        for (i = 0; i < n; i++)
-            inserer_etudiant_dyn(t, tab[i]);
-        t_fin    = get_temps();
-        temps[r] = (t_fin - t_debut) * 1000.0;
-
-        liberer_tableau_dyn(t);
-        free(tab);
-    }
-    moy  = calcul_moyenne(temps, NB_REPETITIONS);
-    ecar = calcul_ecart_type(temps, NB_REPETITIONS, moy);
-    fprintf(f, "TAB_DYN;insertion;%d;%s;%.9f;%.9f\n",
-            n, nom_distribution(dist), moy, ecar);
 
     /* --- RECHERCHE --- */
     Etudiant **tab = generer_etudiants(n, dist);
@@ -309,37 +268,18 @@ void bench_tableau_statique(int n, Distribution dist, FILE *f)
 }
 
 /* ============================================================
-   BENCHMARK LISTE DOUBLEMENT CHAÎNÉE
+   BENCHMARK LISTE CHAINEE
    ============================================================ */
 void bench_liste(int n, Distribution dist, FILE *f)
 {
     double temps[NB_REPETITIONS];
     double t_debut, t_fin, moy, ecar;
 
-    /* --- INSERTION EN QUEUE --- */
     int r;
-    for (r = 0; r < NB_REPETITIONS; r++) {
-        Etudiant **tab = generer_etudiants(n, dist);
-        ListeDC *l      = creer_liste();
-
-        t_debut = get_temps();
-        int i;
-        for (i = 0; i < n; i++)
-            inserer_en_queue(l, tab[i]);
-        t_fin    = get_temps();
-        temps[r] = (t_fin - t_debut) * 1000.0;
-
-        liberer_liste(l);
-        free(tab);
-    }
-    moy  = calcul_moyenne(temps, NB_REPETITIONS);
-    ecar = calcul_ecart_type(temps, NB_REPETITIONS, moy);
-    fprintf(f, "LISTE;insertion;%d;%s;%.9f;%.9f\n",
-            n, nom_distribution(dist), moy, ecar);
 
     /* --- RECHERCHE --- */
     Etudiant **tab = generer_etudiants(n, dist);
-    ListeDC *l      = creer_liste();
+    ListeC *l      = liste_creer();
     int i;
     for (i = 0; i < n; i++){
         inserer_en_queue(l, tab[i]);
@@ -360,7 +300,7 @@ void bench_liste(int n, Distribution dist, FILE *f)
     for (r = 0; r < NB_REPETITIONS; r++) {
         int matricule = 1000 + (rand() % n);
         t_debut = get_temps();
-        supprimer_matricule_liste(l, matricule);
+        supprimer_liste_matricule(l, matricule);
         t_fin   = get_temps();
         temps[r] = (t_fin - t_debut) * 1000.0;
         /* Réinsérer pour garder la taille stable */
@@ -376,17 +316,17 @@ void bench_liste(int n, Distribution dist, FILE *f)
     /* --- TRI INSERTION --- */
     for (r = 0; r < NB_REPETITIONS; r++) {
         Etudiant **d2 = generer_etudiants(n, dist);
-        ListeDC *l2   = creer_liste();
+        ListeC *l2   = liste_creer();
         int i;
         for (i = 0; i < n; i++) {
             inserer_en_queue(l2, d2[i]);
         }
         t_debut  = get_temps();
-        tri_insertion_liste(l2);
+        liste_tri_insertion(l2);
         t_fin    = get_temps();
         temps[r] = (t_fin - t_debut) * 1000.0;
 
-        liberer_liste(l2);
+        liste_liberer(l2);
         free(d2);
     }
     moy  = calcul_moyenne(temps, NB_REPETITIONS);
@@ -414,23 +354,20 @@ int main(void)
 
     /* En-tête CSV */
     fprintf(f, "structure;operation;n;distribution;temps_moy(s);ecart_type(s)\n");
-    int d;
-    for (d = 0; d < NB_DISTRIBUTIONS; d++) {
-        int i;
-        for ( i = 0; i < NB_TAILLES; i++) {
-            int n = TAILLES[i];
-            Distribution dist = DISTRIBUTIONS[d];
+    int i;
+    for ( i = 0; i < NB_TAILLES; i++) {
+        int n = TAILLES[i];
+        Distribution dist = UNIFORME;
 
-            printf("Benchmark n=%6d | distribution=%-12s ...",
-                   n, nom_distribution(dist));
-            fflush(stdout);
+        printf("Benchmark n=%6d ...",
+               n);
+        fflush(stdout);
 
-            bench_tableau_statique(n, dist, f); 
-            bench_tableau_dynamique(n, dist, f);
-            bench_liste(n, dist, f);
+        bench_tableau_statique(n, dist, f); 
+        bench_tableau_dynamique(n, dist, f);
+        bench_liste(n, dist, f);
 
-            printf(" OK\n");
-        }
+        printf(" OK\n");
     }
 
     fclose(f);

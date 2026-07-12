@@ -3,60 +3,58 @@
 
 #include "../include/structure.h"
 
-void liberer_etudiant(Etudiant *e);
-Etudiant* creer_etudiant(int matricule, float moyenne, char *nom, char *prenom, Date d);
+/* --- STRUCTURES --- */
 
 typedef struct Noeud {
-    Etudiant      *etudiant;  /* pointeur vers les donnees        */
-    struct Noeud  *prec;      /* pointeur vers le noeud précédent */
-    struct Noeud  *suiv;      /* pointeur vers le noeud suivant   */
+    Etudiant *etudiant;        /* pointeur vers les données               */
+    struct Noeud *suivant;     /* pointeur vers le noeud suivant          */
 } Noeud;
 
 typedef struct {
-    Noeud *tete;    /* sentinelle de début */
-    Noeud *queue;   /* sentinelle de fin   */
-    int    taille;  /* nombre d'étudiants  */
-} ListeDC;
+    Noeud *tete;    /* premier noeud de la liste (NULL si vide)    */
+    Noeud *queue;   /* dernier noeud de la liste (NULL si vide)    */
+    int taille;     /* nombre d'étudiants dans la liste            */
+} ListeC;
 
-ListeDC* creer_liste(void);
+/* --- FONCTIONS ETUDIANT (dépendent de structure.h) --- */
 
-void liberer_liste(ListeDC *l);
+void liberer_etudiant(Etudiant *e);
+Etudiant* creer_etudiant(int matricule, float moyenne, char *nom, char *prenom, Date d);
+/* --- FONCTIONS LISTE --- */
 
-void inserer_en_tete(ListeDC *l, Etudiant *e);
+ListeC* liste_creer(void);
+void liste_liberer(ListeC *l);
 
-void inserer_en_queue(ListeDC *l, Etudiant *e);
+/* Insertion */
+void inserer_en_tete(ListeC *l, Etudiant *e);
+void inserer_en_queue(ListeC *l, Etudiant *e);
 
-Etudiant* rechercher_matricule_liste(ListeDC *l, int matricule);
+/* Recherche */
+Etudiant* rechercher_matricule_liste(ListeC *l, int matricule);
+void rechercher_intervalle_liste(ListeC *l, float min, float max);
+void rechercher_liste_prefixes(ListeC *l, char *prefixe);
 
-void rechercher_intervalle_liste(ListeDC *l, float min, float max);
+/* Suppression / Modification */
+void supprimer_liste_matricule(ListeC *l, int matricule);
+void liste_modifier_moyenne(ListeC *l, int matricule, float nouvelle_moyenne);
 
-void rechercher_prefixe_liste(ListeDC *l, char *prefixe);
+/* Tri */
+void liste_tri_insertion(ListeC *l);
+void liste_tri_bulles(ListeC *l);
 
-void supprimer_matricule_liste(ListeDC *l, int matricule);
+/* Statistiques */
+float moyenne_generale_liste(ListeC *l);
+float liste_minimum(ListeC *l);
+float liste_maximum(ListeC *l);
+float liste_mediane(ListeC *l);
+float liste_ecart_type(ListeC *l);
 
-void modifier_moyenne_liste(ListeDC *l, int matricule,
-                             float nouvelle_moyenne);
+/* Affichage */
+void afficher_liste(ListeC *l);
+void afficher_liste_inverse(ListeC *l);
 
-void tri_insertion_liste(ListeDC *l);
+/* Persistance (serialisation binaire) */
+void liste_serialiser(ListeC *l, char *nom_fichier);
+ListeC* liste_deserialiser(char *nom_fichier);
 
-void tri_bulles_liste(ListeDC *l);
-
-float moyenne_generale_liste(ListeDC *l);
-
-float minimum_liste(ListeDC *l);
-
-float maximum_liste(ListeDC *l);
-
-float mediane_liste(ListeDC *l);
-
-float ecart_type_liste(ListeDC *l);
-
-void afficher_liste(ListeDC *l);
-
-void afficher_liste_inverse(ListeDC *l);
-
-void serialiser_liste(ListeDC *l, char *nom_fichier);
-
-ListeDC* deserialiser_liste(char *nom_fichier);
-
-#endif /* LISTE_CHAINEE_H */
+#endif // LISTE_CHAINEE_H

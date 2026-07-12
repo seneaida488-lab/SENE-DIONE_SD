@@ -1,314 +1,111 @@
 #include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include "../include/liste_chainee.h"
+#include "liste_chainee.h"
 
-void vider_buffer(void)
-{
-    int c;
-    while ((c = getchar()) != '\n' && c != EOF);
+/* Petite fonction utilitaire pour separer visuellement */
+void titre(const char *texte) {
+    printf("\n=== %s ===\n", texte);
 }
 
-void afficher_menu(void)
-{
-    printf("\n============================================\n");
-    printf("   SYSTEME DE GESTION DE SCOLARITÉ\n");
-    printf("   Structure : Liste Doublement Chainée\n");
-    printf("============================================\n");
-    printf("  1.  Ajouter un etudiant en tete\n");
-    printf("  2.  Ajouter un etudiant en queue\n");
-    printf("  3.  Afficher la liste (debut -> fin)\n");
-    printf("  4.  Afficher la liste (fin -> debut)\n");
-    printf("  5.  Rechercher par matricule\n");
-    printf("  6.  Rechercher par intervalle de moyenne\n");
-    printf("  7.  Rechercher par prefixe du nom\n");
-    printf("  8.  Modifier la moyenne d'un etudiant\n");
-    printf("  9.  Supprimer un etudiant\n");
-    printf("  10. Trier par moyenne (tri insertion)\n");
-    printf("  11. Trier par nom (tri bulles)\n");
-    printf("  12. Statistiques generales\n");
-    printf("  13. Sauvegarder dans un fichier\n");
-    printf("  14. Charger depuis un fichier\n");
-    printf("  0.  Quitter\n");
-    printf("============================================\n");
-    printf("Votre choix : ");
-}
+int main(void) {
 
-Etudiant* saisir_etudiant(ListeDC *l)
-{
-    int   matricule;
-    float moyenne;
-    char  nom[40];
-    char  prenom[100];
-    Date  date;
+    /* --------------------------------------------------------------
+     * 1. Creation de la liste et de quelques etudiants
+     * ------------------------------------------------------------ */
+    titre("Creation de la liste");
+    ListeC *l = liste_creer();
 
-    printf("\n--- Saisie d'un etudiant ---\n");
+    Etudiant *e1 = etudiant_creation(101, 14.5f, "Diop",   "Awa");
+    Etudiant *e2 = etudiant_creation(102, 9.0f,  "Ndiaye", "Moussa");
+    Etudiant *e3 = etudiant_creation(103, 16.2f, "Fall",   "Aissatou");
+    Etudiant *e4 = etudiant_creation(104, 11.8f, "Diallo", "Ibrahima");
+    Etudiant *e5 = etudiant_creation(105, 7.5f,  "Sene",   "Fatou");
 
-    printf("Matricule    : ");
-    scanf("%d", &matricule);
-    vider_buffer();
+    /* --------------------------------------------------------------
+     * 2. Insertion en tete et en queue
+     * ------------------------------------------------------------ */
+    titre("Insertion des etudiants");
+    inserer_en_queue(l, e1);   /* Diop      */
+    inserer_en_queue(l, e2);   /* Ndiaye    */
+    inserer_en_tete(l, e3);    /* Fall (en tete) */
+    inserer_en_queue(l, e4);   /* Diallo    */
+    inserer_en_tete(l, e5);    /* Sene (en tete) */
 
-    /* Vérifier que le matricule n'existe pas dèjas */
-    if (rechercher_matricule_liste(l, matricule) != NULL) {
-        printf("Erreur : le matricule %d existe deja.\n", matricule);
-        return NULL;
-    }
+    afficher_liste(l);
 
-    printf("Nom          : ");
-    fgets(nom, sizeof(nom), stdin);
-    nom[strcspn(nom, "\n")] = '\0';
-
-    printf("Prenom       : ");
-    fgets(prenom, sizeof(prenom), stdin);
-    prenom[strcspn(prenom, "\n")] = '\0';
-
-    printf("Moyenne      : ");
-    scanf("%f", &moyenne);
-    vider_buffer();
-
-    if (moyenne < 0.0f || moyenne > 20.0f) {
-        printf("Erreur : la moyenne doit etre entre 0 et 20.\n");
-        return NULL;
-    }
-
-    printf("Date de naissance\n");
-    printf("  Jour  : "); scanf("%d", &date.jour);
-    printf("  Mois  : "); scanf("%d", &date.mois);
-    printf("  Annee : "); scanf("%d", &date.annee);
-    vider_buffer();
-
-    Etudiant *e = creer_etudiant(matricule, moyenne, nom, prenom, date);
-    if (e == NULL) {
-        printf("Erreur : impossible de creer l'etudiant.\n");
-        return NULL;
-    }
-
-    return e;
-}
-
-void menu_recherche_matricule(ListeDC *l)
-{
-    int matricule;
-    printf("\n--- Recherche par matricule ---\n");
-    printf("Matricule : ");
-    scanf("%d", &matricule);
-    vider_buffer();
-
-    Etudiant *e = rechercher_matricule_liste(l, matricule);
-    if (e != NULL) {
-        printf("\nEtudiant trouve :\n");
-        printf("  Matricule  : %d\n",   e->matricule);
-        printf("  Nom        : %s\n",   e->nom);
-        printf("  Prenom     : %s\n",   e->prenom);
-        printf("  Moyenne    : %.2f\n", e->moyenne);
-        printf("  Naissance  : %02d/%02d/%04d\n",
-               e->dateNaissance.jour,
-               e->dateNaissance.mois,
-               e->dateNaissance.annee);
+    /* --------------------------------------------------------------
+     * 3. Recherche
+     * ------------------------------------------------------------ */
+    titre("Recherche par matricule (102)");
+    Etudiant *trouve = rechercher_matricule_liste(l, 102);
+    if (trouve != NULL) {
+        printf("  Trouve : %s %s (moyenne=%.2f)\n",
+               trouve->nom, trouve->prenom, trouve->moyenne);
     } else {
-        printf("Aucun etudiant avec le matricule %d.\n", matricule);
-    }
-}
-
-void menu_recherche_intervalle(ListeDC *l)
-{
-    float min, max;
-    printf("\n--- Recherche par intervalle de moyenne ---\n");
-    printf("Moyenne minimale : ");
-    scanf("%f", &min);
-    printf("Moyenne maximale : ");
-    scanf("%f", &max);
-    vider_buffer();
-
-    rechercher_intervalle_liste(l, min, max);
-}
-
-void menu_recherche_prefixe(ListeDC *l)
-{
-    char prefixe[40];
-    printf("\n--- Recherche par prefixe du nom ---\n");
-    printf("Prefixe : ");
-    fgets(prefixe, sizeof(prefixe), stdin);
-    prefixe[strcspn(prefixe, "\n")] = '\0';
-
-    rechercher_prefixe_liste(l, prefixe);
-}
-
-void menu_modifier_moyenne(ListeDC *l)
-{
-    int   matricule;
-    float nouvelle_moyenne;
-
-    printf("\n--- Modification de moyenne ---\n");
-    printf("Matricule        : ");
-    scanf("%d", &matricule);
-    printf("Nouvelle moyenne : ");
-    scanf("%f", &nouvelle_moyenne);
-    vider_buffer();
-
-    if (nouvelle_moyenne < 0.0f || nouvelle_moyenne > 20.0f) {
-        printf("Erreur : la moyenne doit etre entre 0 et 20.\n");
-        return;
+        printf("  Aucun etudiant avec ce matricule.\n");
     }
 
-    modifier_moyenne_liste(l, matricule, nouvelle_moyenne);
-}
+    titre("Recherche par intervalle de moyenne [10 ; 15]");
+    rechercher_intervalle_liste(l, 10.0f, 15.0f);
 
-void menu_supprimer(ListeDC *l)
-{
-    int matricule;
-    printf("\n--- Suppression d'un etudiant ---\n");
-    printf("Matricule : ");
-    scanf("%d", &matricule);
-    vider_buffer();
+    titre("Recherche par prefixe de nom \"D\"");
+    rechercher_liste_prefixes(l, "D");
 
-    supprimer_matricule_liste(l, matricule);
-}
+    /* --------------------------------------------------------------
+     * 4. Modification
+     * ------------------------------------------------------------ */
+    titre("Modification de la moyenne du matricule 105");
+    liste_modifier_moyenne(l, 105, 12.0f);
+    afficher_liste(l);
 
-void menu_statistiques(ListeDC *l)
-{
-    if (l->taille == 0) {
-        printf("Aucun etudiant dans la liste.\n");
-        return;
-    }
+    /* --------------------------------------------------------------
+     * 5. Statistiques (avant tri, l'ordre n'a pas d'importance ici)
+     * ------------------------------------------------------------ */
+    titre("Statistiques");
+    printf("  Moyenne generale : %.2f\n", moyenne_generale_liste(l));
+    printf("  Minimum          : %.2f\n", liste_minimum(l));
+    printf("  Maximum          : %.2f\n", liste_maximum(l));
+    printf("  Mediane          : %.2f\n", liste_mediane(l));
+    printf("  Ecart-type       : %.2f\n", liste_ecart_type(l));
 
-    printf("\n--- Statistiques generales ---\n");
-    printf("  Nombre d'etudiants : %d\n",   l->taille);
-    printf("  Moyenne generale   : %.2f\n", moyenne_generale_liste(l));
-    printf("  Minimum            : %.2f\n", minimum_liste(l));
-    printf("  Maximum            : %.2f\n", maximum_liste(l));
-    printf("  Mediane            : %.2f\n", mediane_liste(l));
-    printf("  Ecart-type         : %.2f\n", ecart_type_liste(l));
-}
+    /* --------------------------------------------------------------
+     * 6. Tri
+     * ------------------------------------------------------------ */
+    titre("Tri par insertion (moyenne croissante)");
+    liste_tri_insertion(l);
+    afficher_liste(l);
 
-void menu_sauvegarder(ListeDC *l)
-{
-    char nom_fichier[100];
-    printf("\n--- Sauvegarde ---\n");
-    printf("Nom du fichier : ");
-    fgets(nom_fichier, sizeof(nom_fichier), stdin);
-    nom_fichier[strcspn(nom_fichier, "\n")] = '\0';
+    titre("Affichage inverse (apres tri)");
+    afficher_liste_inverse(l);
 
-    serialiser_liste(l, nom_fichier);
-}
+    titre("Tri a bulles (juste pour verifier qu'il redonne le meme resultat)");
+    liste_tri_bulles(l);
+    afficher_liste(l);
 
-ListeDC* menu_charger(ListeDC *l)
-{
-    char nom_fichier[100];
-    printf("\n--- Chargement ---\n");
-    printf("Nom du fichier : ");
-    fgets(nom_fichier, sizeof(nom_fichier), stdin);
-    nom_fichier[strcspn(nom_fichier, "\n")] = '\0';
+    /* --------------------------------------------------------------
+     * 7. Suppression
+     * ------------------------------------------------------------ */
+    titre("Suppression du matricule 102");
+    supprimer_liste_matricule(l, 102);
+    afficher_liste(l);
 
-    ListeDC *nouvelle = deserialiser_liste(nom_fichier);
-    if (nouvelle != NULL) {
-        liberer_liste(l);
-        return nouvelle;
-    }
+    /* --------------------------------------------------------------
+     * 8. Persistance : serialisation puis desialisation
+     * ------------------------------------------------------------ */
+    titre("Serialisation dans data.bin");
+    liste_serialiser(l, "data.bin");
+    printf("  Ecrit dans data.bin\n");
 
-    printf("Erreur : chargement echoue, donnees actuelles conservees.\n");
-    return l;
-}
+    titre("Deserialisation depuis data.bin");
+    ListeC *l2 = liste_deserialiser("data.bin");
+    afficher_liste(l2);
 
-int main(void)
-{
-    /* Créer la liste doublement chainee vide */
-    ListeDC *l = creer_liste();
-    if (l == NULL) {
-        fprintf(stderr, "Erreur critique : impossible d'initialiser\n");
-        return 1;
-    }
+    /* --------------------------------------------------------------
+     * 9. Liberation memoire
+     * ------------------------------------------------------------ */
+    titre("Liberation de la memoire");
+    liste_liberer(l);
+    liste_liberer(l2);
+    printf("  OK, listes liberees.\n");
 
-    int choix = -1;
-
-    while (choix != 0) {
-        afficher_menu();
-        scanf("%d", &choix);
-        vider_buffer();
-
-        switch (choix) {
-
-            case 1: {
-                Etudiant *e = saisir_etudiant(l);
-                if (e != NULL) {
-                    inserer_en_tete(l, e);
-                    printf("Etudiant ajoute en tete.\n");
-                }
-                break;
-            }
-
-            case 2: {
-                Etudiant *e = saisir_etudiant(l);
-                if (e != NULL) {
-                    inserer_en_queue(l, e);
-                    printf("Etudiant ajoute en queue.\n");
-                }
-                break;
-            }
-
-            case 3:
-                printf("\n--- Liste debut -> fin ---\n");
-                afficher_liste(l);
-                break;
-
-            case 4:
-                printf("\n--- Liste fin -> debut ---\n");
-                afficher_liste_inverse(l);
-                break;
-
-            case 5:
-                menu_recherche_matricule(l);
-                break;
-
-            case 6:
-                menu_recherche_intervalle(l);
-                break;
-
-            case 7:
-                menu_recherche_prefixe(l);
-                break;
-
-            case 8:
-                menu_modifier_moyenne(l);
-                break;
-
-            case 9:
-                menu_supprimer(l);
-                break;
-
-            case 10:
-                tri_insertion_liste(l);
-                afficher_liste(l);
-                break;
-
-            case 11:
-                tri_bulles_liste(l);
-                afficher_liste(l);
-                break;
-
-            case 12:
-                menu_statistiques(l);
-                break;
-
-            case 13:
-                menu_sauvegarder(l);
-                break;
-
-            case 14:
-                l = menu_charger(l);
-                break;
-
-            case 0:
-                printf("\nAu revoir !\n");
-                break;
-
-            default:
-                printf("Choix invalide. Entrez un nombre entre 0 et 14.\n");
-                break;
-        }
-    }
-
-    /* Libérer toute la mémoire */
-    liberer_liste(l);
     return 0;
 }

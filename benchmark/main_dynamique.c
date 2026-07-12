@@ -27,8 +27,8 @@ int main(void)
     Etudiant *e1 = creer_etudiant(1001, 14.50, "NdIONE", "COURA",  d1);
     Etudiant *e2 = creer_etudiant(1002, 12.00, "NDIAYE", "DETHIE",   d2);
     Etudiant *e3 = creer_etudiant(1003, 13.00, "SENE", "AIDA",   d3);
-    Etudiant *e4 = creer_etudiant(1004,  9.00, "KANE", "MOUHAMED",  d4);
-    Etudiant *e5 = creer_etudiant(1005, 15.70, "THIAM", "AMINATA", d5);
+    Etudiant *e4 = creer_etudiant(1004,  9.00, "KA", "ASSANE",  d4);
+    Etudiant *e5 = creer_etudiant(1005, 15.70, "THIAM", "ANTA", d5);
 
     inserer_etudiant_dyn(t, e1);
     inserer_etudiant_dyn(t, e2);

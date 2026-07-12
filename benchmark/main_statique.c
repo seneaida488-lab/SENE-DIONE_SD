@@ -25,24 +25,24 @@ int main(void)
     Etudiant e1, e2, e3, e4, e5;
 
     e1.matricule = 1001;
-    e1.moyenne   = 14.50;
+    e1.moyenne = 14.50;
     strcpy(e1.nom, "Ndiaye");
 
     e2.matricule = 1002;
-    e2.moyenne   = 12.00;
-    strcpy(e2.nom, "Kane");
+    e2.moyenne   = 14.00;
+    strcpy(e2.nom, "sène");
 
     e3.matricule = 1003;
     e3.moyenne   = 17.50;
-    strcpy(e3.nom, "Thiam");
+    strcpy(e3.nom, "Ka");
 
     e4.matricule = 1004;
     e4.moyenne   = 9.00;
-    strcpy(e4.nom, "Sène");
+    strcpy(e4.nom, "Guèye");
 
     e5.matricule = 1005;
     e5.moyenne   = 15.75;
-    strcpy(e5.nom, "Diop");
+    strcpy(e5.nom, "Dia");
 
     insertionTableau(tab, &n, e1);
     insertionTableau(tab, &n, e2);
@@ -123,8 +123,8 @@ int main(void)
     -------------------------------------------------- */
     printf("--- Statistiques sur les moyennes ---\n");
     printf("  Moyenne générale : %.2f\n", MoyenneDesmoyennes(tab, n));
-    printf("  Minimum          : %d\n",   minimumDesmoyennes(tab, n));
-    printf("  Maximum          : %d\n",   maximumDesmoyennes(tab, n));
+    printf("  Minimum          : %.2f\n",   minimumDesmoyennes(tab, n));
+    printf("  Maximum          : %.2f\n",   maximumDesmoyennes(tab, n));
     printf("  Médiane          : %.2f\n", MedianeDesmoyennes(tab, n));
     printf("  Écart-type       : %.2f\n", EcartTypeDesmoyennes(tab, n));
     printf("\n");
