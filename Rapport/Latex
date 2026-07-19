@@ -34,11 +34,11 @@
     top=2.5cm,  bottom=2.5cm
 }
 
-% En-tête et pied de page
+% En-tete et pied de page
 \pagestyle{fancy}
 \fancyhf{}
 \rhead{\small Projet LMI ASD 2026}
-\lhead{\small SENE — DIONE}
+\lhead{\small AIDA SENE --- COURA NDIONE}
 \cfoot{\thepage}
 \renewcommand{\headrulewidth}{0.4pt}
 
@@ -46,7 +46,7 @@
 \definecolor{bleu}{RGB}{26,58,92}
 \definecolor{vert}{RGB}{29,158,117}
 \definecolor{gris}{RGB}{245,245,245}
-\definecolor{rouge}{RGB}{168,45,45}
+\definecolor{marron}{RGB}{168,45,45}
 \definecolor{codecouleur}{RGB}{40,40,40}
 
 % Style des sections
@@ -84,7 +84,7 @@
 }
 \lstset{style=styleC}
 
-% Boîte de remarque
+% Boite de remarque
 \tcbuselibrary{skins}
 \newtcolorbox{remarque}{
     colback=bleu!5,
@@ -107,23 +107,23 @@
     \vspace*{1cm}
 
     {\large\bfseries\color{bleu}
-    République du Sénégal \\
-    Université Iba Der Thiam de Thiès \\
+    Republique du Senegal \\
+    Universite Iba Der Thiam de Thies \\
     UFR Sciences et Technologies \\
-    Département de Mathématiques et Informatique}
+    Departement de Mathematiques et Informatique}
 
     \vspace{1.5cm}
     \hrule height 1pt
     \vspace{0.5cm}
 
     {\Huge\bfseries\color{bleu}
-    Conception, Implémentation et \\[0.3cm]
-    Évaluation Comparative de \\[0.3cm]
-    Structures de Données}
+    Conception, Implementation et \\[0.3cm]
+    Evaluation Comparative de \\[0.3cm]
+    Structures de Donnees}
 
     \vspace{0.4cm}
     {\large\color{vert}
-    Système de Gestion de Scolarité}
+    Systeme de Gestion de Scolarite}
 
     \vspace{0.5cm}
     \hrule height 1pt
@@ -131,41 +131,41 @@
 
     {\large
     \begin{tabular}{ll}
-        \textbf{Filière}     & Licence 2 Mathématiques--Informatique \\[6pt]
-        \textbf{Module}      & Algorithmique et Structures de Données \\[6pt]
+        \textbf{Filiere}     & Licence 2 Mathematiques--Informatique \\[6pt]
+        \textbf{Module}      & Algorithmique et Structures de Donnees \\[6pt]
         \textbf{Enseignant}  & Dr Abdoulaye DIALLO \\[6pt]
-        \textbf{Binôme}      & SENE — DIONE \\[6pt]
-        \textbf{Année}       & 2025--2026 \\
+        \textbf{Binome}      & AIDA SENE --- COURA DIONE \\[6pt]
+        \textbf{Annee}       & 2025--2026 \\
     \end{tabular}}
 
     \vfill
-    {\small\color{gray} Rapport rédigé en \LaTeX{} — Année universitaire 2025--2026}
+    {\small\color{gray} Rapport redige en \LaTeX{} --- Annee universitaire 2025--2026}
 \end{titlepage}
 
 % ============================================================
-% TABLE DES MATIÈRES
+% TABLE DES MATIERES
 % ============================================================
 \tableofcontents
 \newpage
 
 % ============================================================
-% RÉSUMÉ
+% RESUME
 % ============================================================
 \begin{abstract}
-Ce rapport présente la conception, l'implémentation et l'évaluation
-comparative de trois structures de données hybrides appliquées à un
-système de gestion de scolarité : le tableau statique, le tableau
-dynamique de pointeurs avec redimensionnement géométrique, et la liste
-doublement chaînée avec sentinelles. Chaque structure supporte un
-ensemble complet d'opérations : insertion, recherche (par clé primaire,
-intervalle et préfixe), suppression, mise à jour, tri (insertion et
-rapide), agrégations statistiques et persistance binaire. Une analyse
-théorique rigoureuse de la complexité asymptotique est confrontée à
-une étude expérimentale reproductible portant sur des jeux de données
-allant de $n = 100$ à $n = 100\,000$ enregistrements, selon trois
-distributions (uniforme, gaussienne, triée). Les résultats confirment
-les prédictions théoriques et mettent en évidence les compromis
-temps/espace propres à chaque structure.
+Ce rapport presente la conception, l'implementation et l'evaluation
+comparative de trois structures de donnees hybrides appliquees a un
+systeme de gestion de scolarite : le tableau statique, le tableau
+dynamique de pointeurs avec redimensionnement geometrique, et la liste
+chainee avec sentinelle. Chaque structure supporte un ensemble
+d'operations : insertion, recherche, suppression, tri (insertion et
+rapide), agregations statistiques et persistance binaire. Une analyse
+theorique rigoureuse de la complexite asymptotique est confrontee a
+une etude experimentale reproductible portant sur des jeux de donnees
+allant de $n = 100$ a $n = 100\,000$ enregistrements. L'etude
+experimentale se concentre sur trois operations : la recherche, la
+suppression et le tri (par insertion et rapide). Les resultats
+confirment les predictions theoriques et mettent en evidence les
+compromis temps/espace propres a chaque structure.
 \end{abstract}
 
 \newpage
@@ -177,51 +177,51 @@ temps/espace propres à chaque structure.
 
 \subsection{Contexte et motivation}
 
-Dans tout système informatique réaliste, le choix d'une représentation
-interne des données conditionne directement la performance des opérations
-courantes. Une décision de modélisation prise en début de projet peut
-multiplier par un facteur $100$ ou plus le temps d'exécution lorsque
-la volumétrie augmente.
+Dans tout systeme informatique realiste, le choix d'une representation
+interne des donnees conditionne directement la performance des operations
+courantes. Une decision de modelisation prise en debut de projet peut
+multiplier par un facteur $100$ ou plus le temps d'execution lorsque
+la volumetrie augmente.
 
-Ce projet s'inscrit dans ce contexte : il place le développeur dans
+Ce projet s'inscrit dans ce contexte : il place le developpeur dans
 la posture d'un concepteur logiciel devant manipuler une base
-d'enregistrements à plusieurs champs, organisée à l'aide de plusieurs
-structures de données concurrentes. L'objectif est double : coder
+d'enregistrements a plusieurs champs, organisee a l'aide de plusieurs
+structures de donnees concurrentes. L'objectif est double : coder
 correctement, mais aussi \textbf{mesurer, comparer et expliquer}
 le comportement de chacune des structures retenues.
 
 \subsection{Domaine applicatif}
 
-Le domaine choisi est la \textbf{gestion de scolarité} : gestion des
-étudiants, de leurs notes, inscriptions et informations personnelles.
-Ce domaine est représentatif des systèmes d'information réels et
-justifie l'utilisation de structures de données complexes reliées
+Le domaine choisi est la \textbf{gestion de scolarite} : gestion des
+etudiants, de leurs notes, inscriptions et informations personnelles.
+Ce domaine est representatif des systemes d'information reels et
+justifie l'utilisation de structures de donnees complexes reliees
 par des pointeurs.
 
 \subsection{Objectifs du projet}
 
 \begin{enumerate}
-    \item Concevoir un modèle de données cohérent avec des types
-          d'enregistrements liés par pointeurs
-    \item Implémenter trois structures de données distinctes en C
-    \item Effectuer une analyse de complexité asymptotique rigoureuse
-    \item Mettre en place un protocole expérimental reproductible
-    \item Produire des courbes de complexité scientifiquement exploitables
+    \item Concevoir un modele de donnees coherent avec des types
+          d'enregistrements lies par pointeurs
+    \item Implementer trois structures de donnees distinctes en C
+    \item Effectuer une analyse de complexite asymptotique rigoureuse
+    \item Mettre en place un protocole experimental reproductible
+    \item Produire des courbes de complexite scientifiquement exploitables
 \end{enumerate}
 
 % ============================================================
-% 2. MODÉLISATION DES DONNÉES
+% 2. MODELISATION DES DONNEES
 % ============================================================
-\section{Modélisation des Données}
+\section{Modelisation des Donnees}
 
 \subsection{Choix de conception}
 
-Le type principal manipulé est \texttt{Etudiant}, accompagné de quatre
+Le type principal manipule est \texttt{Etudiant}, accompagne de quatre
 types secondaires : \texttt{Note}, \texttt{Inscription}, \texttt{Cours}
-et \texttt{Date}. Cette organisation répond aux exigences du cahier
-des charges : au moins deux types d'enregistrements liés par pointeurs.
+et \texttt{Date}. Cette organisation repond aux exigences du cahier
+des charges : au moins deux types d'enregistrements lies par pointeurs.
 
-\subsection{Structures de données définies}
+\subsection{Structures de donnees definies}
 
 \subsubsection{Type Date}
 
@@ -277,31 +277,31 @@ typedef struct {
 
 \subsection{Justification des choix}
 
-Le champ \texttt{prenom} est déclaré comme \texttt{char*} (pointeur)
-plutôt que comme tableau fixe \texttt{char[n]}, afin de satisfaire
-l'exigence d'un champ de longueur variable alloué dynamiquement avec
-\texttt{malloc}. La mémoire est allouée exactement à la taille nécessaire :
+Le champ \texttt{prenom} est declare comme \texttt{char*} (pointeur)
+plutot que comme tableau fixe \texttt{char[n]}, afin de satisfaire
+l'exigence d'un champ de longueur variable alloue dynamiquement avec
+\texttt{malloc}. La memoire est allouee exactement a la taille necessaire :
 
 \[
-\text{taille} = \text{strlen(prenom)} + 1 \quad \text{(+1 pour le caractère nul)}
+\text{taille} = \text{strlen(prenom)} + 1 \quad \text{(+1 pour le caractere nul)}
 \]
 
 Le tableau \texttt{tabnote[10]} constitue le champ tableau interne
-non trivial exigé, et le pointeur \texttt{inscription} assure la
+non trivial exige, et le pointeur \texttt{inscription} assure la
 relation $1$-$N$ entre les types d'enregistrements.
 
 % ============================================================
-% 3. STRUCTURES DE DONNÉES IMPLÉMENTÉES
+% 3. STRUCTURES DE DONNEES IMPLEMENTEES
 % ============================================================
-\section{Structures de Données Implémentées}
+\section{Structures de Donnees Implementees}
 
 \subsection{Tableau statique}
 
 \subsubsection{Principe}
 
-Le tableau statique alloue un bloc continu de mémoire à la compilation,
-de capacité fixe \texttt{TAILLEMAX = 100\,000}. Les éléments sont des
-\texttt{Etudiant} (pas des pointeurs) stockés directement dans le tableau.
+Le tableau statique alloue un bloc continu de memoire a la compilation,
+de capacite fixe \texttt{TAILLEMAX = 100\,000}. Les elements sont des
+\texttt{Etudiant} (pas des pointeurs) stockes directement dans le tableau.
 
 \subsubsection{Structure}
 
@@ -310,10 +310,10 @@ Etudiant tab[TAILLEMAX];
 int n = 0;  /* nombre d'elements actuellement stockes */
 \end{lstlisting}
 
-\subsubsection{Opérations principales}
+\subsubsection{Operations principales}
 
-L'insertion maintient le tableau trié par matricule. La suppression
-décale les éléments suivants d'une position vers la gauche.
+L'insertion maintient le tableau trie par matricule. La suppression
+decale les elements suivants d'une position vers la gauche.
 
 \subsection{Tableau dynamique de pointeurs}
 
@@ -333,9 +333,9 @@ typedef struct {
 } TableauDyn;
 \end{lstlisting}
 
-\subsubsection{Redimensionnement géométrique}
+\subsubsection{Redimensionnement geometrique}
 
-Lorsque \texttt{taille == capacite}, la capacité est doublée :
+Lorsque \texttt{taille == capacite}, la capacite est doublee :
 
 \begin{lstlisting}[caption={Redimensionnement par realloc}]
 int nouvelle_capacite = t->capacite * 2;
@@ -345,79 +345,67 @@ t->tab      = nouveau;
 t->capacite = nouvelle_capacite;
 \end{lstlisting}
 
-La séquence des capacités est : $4 \to 8 \to 16 \to 32 \to \ldots$
+La sequence des capacites est : $4 \to 8 \to 16 \to 32 \to \ldots$
 
-\subsection{Liste doublement chaînée}
+\subsection{Liste chainee}
 
 \subsubsection{Principe}
 
-La liste doublement chaînée utilise des \textbf{noeuds} reliés entre
-eux par deux pointeurs (\texttt{prec} et \texttt{suiv}). Deux
-\textbf{sentinelles} (tête et queue) éliminent les cas particuliers
-d'insertion et de suppression aux extrémités.
+La liste chainee utilise des \textbf{noeuds} relies entre eux par un
+pointeur \texttt{suiv}. Une \textbf{sentinelle} de debut (\texttt{tete})
+elimine les cas particuliers d'insertion et de suppression en tete.
 
 \subsubsection{Structures}
 
-\begin{lstlisting}[caption={Structures Noeud et ListeDC}]
+\begin{lstlisting}[caption={Structures Noeud et ListeC}]
 typedef struct Noeud {
     Etudiant     *etudiant;
-    struct Noeud *prec;
     struct Noeud *suiv;
 } Noeud;
 
 typedef struct {
     Noeud *tete;    /* sentinelle de debut */
-    Noeud *queue;   /* sentinelle de fin   */
+    Noeud *queue;   /* dernier element     */
     int    taille;
-} ListeDC;
+} ListeC;
 \end{lstlisting}
 
-\subsubsection{Insertion en tête en O(1)}
+\subsubsection{Insertion en tete en O(1)}
 
-Grâce aux sentinelles, l'insertion en tête ne nécessite aucun parcours :
+Grace a la sentinelle, l'insertion en tete ne necessite aucun parcours :
 
-\begin{lstlisting}[caption={Insertion en tête O(1)}]
+\begin{lstlisting}[caption={Insertion en tete O(1)}]
 Noeud *ancien_premier = l->tete->suiv;
-nouveau->prec        = l->tete;
-nouveau->suiv        = ancien_premier;
-l->tete->suiv        = nouveau;
-ancien_premier->prec = nouveau;
+nouveau->suiv  = ancien_premier;
+l->tete->suiv  = nouveau;
 l->taille++;
 \end{lstlisting}
 
 % ============================================================
-% 4. OPÉRATIONS COMMUNES
+% 4. OPERATIONS COMMUNES
 % ============================================================
-\section{Opérations Communes}
+\section{Operations Communes}
 
 \subsection{Recherche}
 
-Trois types de recherche sont implémentés pour chaque structure :
-
-\begin{itemize}
-    \item \textbf{Par clé primaire} (matricule) : parcours séquentiel,
-          retourne un pointeur vers l'étudiant ou \texttt{NULL}
-    \item \textbf{Par intervalle} sur la moyenne : affiche tous les
-          étudiants dont $\text{min} \leq \text{moyenne} \leq \text{max}$
-    \item \textbf{Par préfixe} sur le nom : utilise \texttt{strncmp}
-          pour comparer les $k$ premiers caractères
-\end{itemize}
+La recherche par cle primaire (matricule) est implementee pour chaque
+structure par parcours sequentiel, et retourne un pointeur vers
+l'etudiant ou \texttt{NULL} s'il n'est pas trouve.
 
 \subsection{Tri}
 
-Deux algorithmes de tri sont implémentés :
+Deux algorithmes de tri sont implementes :
 
 \begin{itemize}
     \item \textbf{Tri par insertion} : trie par moyenne croissante.
-          Performant sur les données presque triées.
+          Performant sur les donnees presque triees.
     \item \textbf{Tri rapide (QuickSort)} : trie par moyenne croissante.
-          Performant en moyenne sur les données aléatoires.
+          Performant en moyenne sur les donnees aleatoires.
 \end{itemize}
 
-\subsection{Agrégations statistiques}
+\subsection{Agregations statistiques}
 
-Les cinq agrégations suivantes sont calculées sur le champ
-\texttt{moyenne} :
+Les agregations suivantes sont calculees sur le champ \texttt{moyenne} :
 
 \[
 \bar{x} = \frac{1}{n}\sum_{i=1}^{n} x_i \qquad
@@ -426,70 +414,62 @@ Les cinq agrégations suivantes sont calculées sur le champ
 
 \subsection{Persistance binaire}
 
-La sérialisation écrit les champs fixes avec \texttt{fwrite},
-et précède les champs de longueur variable de leur taille :
+La serialisation ecrit les champs fixes avec \texttt{fwrite},
+et precede les champs de longueur variable de leur taille :
 
-\begin{lstlisting}[caption={Sérialisation du prénom}]
+\begin{lstlisting}[caption={Serialisation du prenom}]
 int len = strlen(e->prenom) + 1;
 fwrite(&len,      sizeof(int),  1,   f);
 fwrite(e->prenom, sizeof(char), len, f);
 \end{lstlisting}
 
 % ============================================================
-% 5. ÉTUDE DE COMPLEXITÉ
+% 5. ETUDE DE COMPLEXITE
 % ============================================================
-\section{Étude de Complexité}
+\section{Etude de Complexite}
 
-\subsection{Analyse théorique}
+\subsection{Analyse theorique}
 
-\subsubsection{Tableau récapitulatif}
+\subsubsection{Tableau recapitulatif}
 
 \begin{table}[H]
 \centering
-\caption{Complexité temporelle des opérations par structure}
+\caption{Complexite temporelle des operations par structure}
 \begin{threeparttable}
 \begin{tabular}{lccc}
 \toprule
-\textbf{Opération} & \textbf{Tab. statique} & \textbf{Tab. dynamique} & \textbf{Liste chaînée} \\
+\textbf{Operation} & \textbf{Tab. statique} & \textbf{Tab. dynamique} & \textbf{Liste chainee} \\
 \midrule
-Insertion fin      & $\Theta(1)$   & $O(n)/\Omega(1)^*$ & $\Theta(1)$ \\
-Insertion tête     & $\Theta(n)$   & $\Theta(n)$         & $\Theta(1)$ \\
-Recherche clé      & $O(n)/\Omega(1)$ & $O(n)/\Omega(1)$ & $O(n)/\Omega(1)$ \\
+Recherche cle      & $O(n)/\Omega(1)$ & $O(n)/\Omega(1)$ & $O(n)/\Omega(1)$ \\
 Suppression        & $\Theta(n)$   & $\Theta(n)$         & $O(n)/\Omega(1)$ \\
-Accès index $i$    & $\Theta(1)$   & $\Theta(1)$         & $\Theta(n)$ \\
 Tri insertion      & $O(n^2)/\Omega(n)$ & $O(n^2)/\Omega(n)$ & $O(n^2)/\Omega(n)$ \\
 Tri rapide         & $O(n^2)/\Omega(n\log n)$ & $O(n^2)/\Omega(n\log n)$ & $O(n^2)/\Omega(n\log n)$ \\
-Min / Max / Moy    & $\Theta(n)$   & $\Theta(n)$         & $\Theta(n)$ \\
 \bottomrule
 \end{tabular}
-\begin{tablenotes}
-\small
-\item $^*$ O(1) amorti sur $n$ insertions (analyse agrégée)
-\end{tablenotes}
 \end{threeparttable}
 \end{table}
 
-\subsubsection{Complexité spatiale}
+\subsubsection{Complexite spatiale}
 
 \begin{table}[H]
 \centering
-\caption{Complexité spatiale par structure}
+\caption{Complexite spatiale par structure}
 \begin{tabular}{lll}
 \toprule
-\textbf{Structure} & \textbf{Espace} & \textbf{Détail} \\
+\textbf{Structure} & \textbf{Espace} & \textbf{Detail} \\
 \midrule
-Tableau statique   & $\Theta(C)$       & $C$ fixe à la compilation \\
-Tableau dynamique  & $\Theta(n)$ à $\Theta(2n)$ & Au pire moitié vide après realloc \\
-Liste chaînée      & $\Theta(n) + 2n$ pointeurs & Surcoût constant par noeud \\
+Tableau statique   & $\Theta(C)$       & $C$ fixe a la compilation \\
+Tableau dynamique  & $\Theta(n)$ a $\Theta(2n)$ & Au pire moitie vide apres realloc \\
+Liste chainee      & $\Theta(n) + n$ pointeurs & Surcout constant par noeud \\
 \bottomrule
 \end{tabular}
 \end{table}
 
-\subsection{Justifications mathématiques}
+\subsection{Justifications mathematiques}
 
 \subsubsection{Tri par insertion}
 
-La boucle externe itère de $i = 1$ à $n-1$. Pour chaque $i$,
+La boucle externe itere de $i = 1$ a $n-1$. Pour chaque $i$,
 la boucle interne effectue au plus $i$ comparaisons.
 Le nombre total de comparaisons est :
 
@@ -497,86 +477,49 @@ Le nombre total de comparaisons est :
 \sum_{i=1}^{n-1} i = \frac{n(n-1)}{2} = O(n^2)
 \]
 
-En meilleur cas (données déjà triées), aucun décalage n'est nécessaire :
-complexité $\Omega(n)$.
+En meilleur cas (donnees deja triees), aucun decalage n'est necessaire :
+complexite $\Omega(n)$.
 
 \subsubsection{Tri rapide}
 
-L'équation de récurrence en cas moyen est :
+L'equation de recurrence en cas moyen est :
 \[
 T(n) = 2T\!\left(\frac{n}{2}\right) + O(n)
 \]
 
-Par le \textbf{théorème maître} (cas 2) avec $a=2$, $b=2$, $f(n)=n$ :
+Par le \textbf{theoreme maitre} (cas 2) avec $a=2$, $b=2$, $f(n)=n$ :
 \[
 n^{\log_2 2} = n^1 = n = f(n) \implies T(n) = \Theta(n \log n)
 \]
 
 Le pire cas $T(n) = O(n^2)$ survient lorsque la partition est
-systématiquement déséquilibrée, c'est-à-dire lorsque le pivot choisi
-tombe à une extrémité de l'intervalle à chaque appel récursif
-(par exemple si le pivot est toujours le premier élément et que les
-données sont déjà triées). Le choix du pivot au milieu de l'intervalle,
-utilisé dans notre implémentation, limite fortement ce risque et
-rapproche le comportement observé du cas moyen $\Theta(n \log n)$,
-y compris sur des données triées ; le pire cas reste néanmoins
-possible dans des configurations pathologiques (par exemple de
-nombreuses valeurs dupliquées).
+systematiquement desequilibree, c'est-a-dire lorsque le pivot choisi
+tombe a une extremite de l'intervalle a chaque appel recursif.
+Le choix du pivot au milieu de l'intervalle, utilise dans notre
+implementation, limite fortement ce risque et rapproche le comportement
+observe du cas moyen $\Theta(n \log n)$.
 
-\subsubsection{Insertion tableau dynamique — O(1) amorti}
-
-Par analyse agrégée sur $n$ insertions : les realloc se produisent
-aux étapes $1, 2, 4, 8, \ldots, 2^k$ où $2^k \leq n$.
-Le coût total est :
-
-\[
-n + \sum_{j=0}^{\lfloor\log_2 n\rfloor} 2^j \leq n + 2n = 3n = O(n)
-\]
-
-Le coût \textbf{amorti} par insertion est donc $\dfrac{3n}{n} = O(1)$.
-
-\subsubsection{Influence de la distribution des données}
-
-\begin{table}[H]
-\centering
-\caption{Influence de la distribution sur les algorithmes de tri}
-\begin{tabular}{lccc}
-\toprule
-\textbf{Distribution} & \textbf{Tri insertion} & \textbf{Tri rapide} & \textbf{Recherche} \\
-\midrule
-Uniforme    & $O(n^2)$      & $\Theta(n\log n)$ & $\Theta(n/2)$ \\
-Gaussienne  & $O(n^2)$      & $\Theta(n\log n)$ & $\Theta(n/2)$ \\
-Déjà triée  & $\Omega(n)$   & $\Theta(n\log n)^{\dagger}$ & $\Theta(n/2)$ \\
-Inversée    & $O(n^2)$      & $\Theta(n\log n)^{\dagger}$ & $\Theta(n/2)$ \\
-\bottomrule
-\end{tabular}
-\end{table}
-
-\begin{center}
-\small $^{\dagger}$ Grâce au choix du pivot médian ; un pivot naïf
-(premier élément) donnerait $O(n^2)$ dans ces deux cas.
-\end{center}
-
-\subsection{Étude expérimentale}
+\subsection{Etude experimentale}
 
 \subsubsection{Protocole}
 
 \begin{itemize}
     \item \textbf{Tailles} : $n \in \{100,\ 1\,000,\ 10\,000,\ 100\,000\}$
-    \item \textbf{Distributions} : uniforme, gaussienne, triée
-    \item \textbf{Répétitions} : 10 mesures par configuration
-    \item \textbf{Horloge} : \texttt{clock()} (bibliothèque standard C,
-          précision de l'ordre de la milliseconde selon le système)
-    \item \textbf{Résultats} : moyenne et écart-type calculés
+    \item \textbf{Operations mesurees} : recherche, suppression, tri
+          (par insertion et tri rapide)
+    \item \textbf{Repetitions} : 10 mesures par configuration
+    \item \textbf{Horloge} : \texttt{clock()} (bibliotheque standard C,
+          precision de l'ordre de la milliseconde selon le systeme)
+    \item \textbf{Resultats} : moyenne et ecart-type calcules
 \end{itemize}
 
 \begin{remarque}
-Pour les petites tailles ($n=100$), la résolution de \texttt{clock()}
-peut être insuffisante pour distinguer des temps très courts, ce qui
-explique des mesures proches de zéro. Une horloge à plus haute
-résolution (\texttt{clock\_gettime(CLOCK\_MONOTONIC, ...)} sous
+Pour les petites tailles ($n=100$), la resolution de \texttt{clock()}
+peut etre insuffisante pour distinguer des temps tres courts, ce qui
+explique des mesures proches de zero. Une horloge a plus haute
+resolution (\texttt{clock\_gettime(CLOCK\_MONOTONIC, ...)} sous
 Linux/POSIX, ou \texttt{QueryPerformanceCounter} sous Windows)
-donnerait une précision supérieure et pourra être envisagée dans
+donnerait une precision superieure et pourra etre envisagee dans
 une version future du benchmark.
 \end{remarque}
 
@@ -587,9 +530,9 @@ une version future du benchmark.
 \caption{Environnement de mesure}
 \begin{tabular}{ll}
 \toprule
-\textbf{Paramètre} & \textbf{Valeur} \\
+\textbf{Parametre} & \textbf{Valeur} \\
 \midrule
-Système d'exploitation & Windows 10 \\
+Systeme d'exploitation & Windows 10 \\
 Memoire RAM            & 8 Go \\
 Processeur            & Intel Core i5-1035G1 @ 1.00GHz \\
 Compilateur            & GCC 10.3.0 TDM64 (-Wall -Wextra) \\
@@ -598,133 +541,87 @@ Langage                & C (standard C99) \\
 \end{tabular}
 \end{table}
 
-\subsubsection{Courbes de complexité}
+\subsubsection{Courbes de complexite}
 
-Conformément au protocole expérimental, les visualisations suivantes
-sont présentées : temps d'exécution par opération (échelles linéaire
-et logarithmique), influence de la distribution des données, comparaison
-au modèle théorique, et facteur de ralentissement entre structures.
+Conformement au protocole experimental (section 5.3 du cahier des
+charges), les courbes suivantes sont presentees : pour chaque
+operation (recherche, suppression, tri par insertion, tri rapide),
+une figure regroupant l'echelle lineaire (a gauche) et l'echelle
+logarithmique (a droite), toutes structures superposees, ainsi
+qu'une courbe de comparaison au modele theorique pour le tri
+rapide. Un diagramme supplementaire presente le facteur de
+ralentissement entre structures.
 
-\paragraph{Temps d'exécution par opération (linéaire et logarithmique)}
+\paragraph{Temps d'execution par operation, toutes structures superposees}
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.9\textwidth]{figures/lineaire_insertion.png}
-    \caption{Temps d'insertion en fonction de $n$ — échelle linéaire}
+    \includegraphics[width=\textwidth]{courbe_recherche.png}
+    \caption{Temps de recherche en fonction de $n$ --- lineaire (gauche) et logarithmique (droite)}
 \end{figure}
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.9\textwidth]{figures/log_insertion.png}
-    \caption{Temps d'insertion en fonction de $n$ — échelle logarithmique}
+    \includegraphics[width=\textwidth]{courbe_suppression.png}
+    \caption{Temps de suppression en fonction de $n$ --- lineaire (gauche) et logarithmique (droite)}
 \end{figure}
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.9\textwidth]{figures/lineaire_recherche.png}
-    \caption{Temps de recherche en fonction de $n$ — échelle linéaire}
+    \includegraphics[width=\textwidth]{courbe_tri_insertion.png}
+    \caption{Temps de tri par insertion en fonction de $n$ --- lineaire (gauche) et logarithmique (droite)}
 \end{figure}
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.9\textwidth]{figures/log_recherche.png}
-    \caption{Temps de recherche en fonction de $n$ — échelle logarithmique}
+    \includegraphics[width=\textwidth]{courbe_tri_rapide.png}
+    \caption{Temps de tri rapide en fonction de $n$ --- lineaire (gauche) et logarithmique (droite)}
 \end{figure}
+
+\paragraph{Comparaison au modele theorique}
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.9\textwidth]{figures/lineaire_suppression.png}
-    \caption{Temps de suppression en fonction de $n$ — échelle linéaire}
-\end{figure}
-
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=0.9\textwidth]{figures/log_suppression.png}
-    \caption{Temps de suppression en fonction de $n$ — échelle logarithmique}
-\end{figure}
-
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=0.9\textwidth]{figures/lineaire_tri_insertion.png}
-    \caption{Temps de tri par insertion en fonction de $n$ — échelle linéaire}
-\end{figure}
-
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=0.9\textwidth]{figures/log_tri_insertion.png}
-    \caption{Temps de tri par insertion en fonction de $n$ — échelle logarithmique}
-\end{figure}
-
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=0.9\textwidth]{figures/lineaire_tri_rapide.png}
-    \caption{Temps de tri rapide en fonction de $n$ — échelle linéaire}
-\end{figure}
-
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=0.9\textwidth]{figures/log_tri_rapide.png}
-    \caption{Temps de tri rapide en fonction de $n$ — échelle logarithmique}
-\end{figure}
-
-\paragraph{Influence de la distribution des données}
-
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=0.9\textwidth]{figures/distribution_insertion.png}
-    \caption{Temps d'insertion selon la distribution des données, à $n$ fixé}
-\end{figure}
-
-\paragraph{Comparaison au modèle théorique}
-
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=0.9\textwidth]{figures/comparaison_tri_rapide.png}
-    \caption{Temps de tri rapide mesuré comparé à la courbe théorique $n\log n$}
+    \includegraphics[width=0.9\textwidth]{comparaison_tri_rapide.png}
+    \caption{Temps de tri rapide mesure compare a la courbe theorique $n\log n$}
 \end{figure}
 
 \paragraph{Facteur de ralentissement entre structures}
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.9\textwidth]{figures/histogramme_ralentissement.png}
-    \caption{Facteur de ralentissement entre la meilleure et la pire structure, par opération}
+    \includegraphics[width=0.9\textwidth]{histogramme_ralentissement.png}
+    \caption{Facteur de ralentissement entre la meilleure et la pire structure, par operation}
 \end{figure}
-% Décommenter et adapter selon vos vraies courbes :
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=0.9\textwidth]{figures/lineaire_insertion.png}
-    \caption{Temps d'insertion en fonction de $n$ — échelle linéaire}
-    \label{fig:lineaire_insertion}
-\end{figure}
+
 
 % ============================================================
 % 6. PERSISTANCE
 % ============================================================
-\section{Persistance des Données}
+\section{Persistance des Donnees}
 
-La sérialisation binaire permet de sauvegarder l'intégralité
-d'un jeu de données sur disque et de le recharger ultérieurement.
+La serialisation binaire permet de sauvegarder l'integralite
+d'un jeu de donnees sur disque et de le recharger ulterieurement.
 
 \subsection{Format binaire}
 
 Le format du fichier \texttt{.bin} est le suivant :
 
 \begin{enumerate}
-    \item Un entier \texttt{int} indiquant le nombre $n$ d'étudiants
-    \item Pour chaque étudiant :
+    \item Un entier \texttt{int} indiquant le nombre $n$ d'etudiants
+    \item Pour chaque etudiant :
     \begin{itemize}
         \item Champs fixes : \texttt{matricule}, \texttt{moyenne},
               \texttt{nom[40]}, \texttt{dateNaissance}
-        \item Champ variable : longueur du prénom (\texttt{int}),
-              puis le prénom (\texttt{char*})
+        \item Champ variable : longueur du prenom (\texttt{int}),
+              puis le prenom (\texttt{char*})
     \end{itemize}
 \end{enumerate}
 
-\subsection{Complexité de la persistance}
+\subsection{Complexite de la persistance}
 
-La sérialisation et la désérialisation ont toutes deux une
-complexité $\Theta(n)$ car elles parcourent chaque enregistrement
+La serialisation et la deserialisation ont toutes deux une
+complexite $\Theta(n)$ car elles parcourent chaque enregistrement
 exactement une fois.
 
 % ============================================================
@@ -734,53 +631,52 @@ exactement une fois.
 
 \subsection{Bilan comparatif}
 
-Ce projet a permis d'implémenter et de comparer trois structures
-de données sur un même jeu d'opérations. Le tableau récapitulatif
-des complexités théoriques a été confirmé par les mesures expérimentales.
+Ce projet a permis d'implementer et de comparer trois structures
+de donnees sur un meme jeu d'operations. Le tableau recapitulatif
+des complexites theoriques a ete confirme par les mesures experimentales.
 
 Les principaux enseignements sont :
 
 \begin{itemize}
-    \item Le \textbf{tableau statique} offre l'accès direct en $O(1)$
-          mais souffre d'une capacité fixe et d'insertions coûteuses
+    \item Le \textbf{tableau statique} offre l'acces direct en $O(1)$
+          mais souffre d'une capacite fixe et d'insertions couteuses
           lorsqu'il faut maintenir le tri.
 
-    \item Le \textbf{tableau dynamique} équilibre flexibilité et
-          performance grâce au redimensionnement en $O(1)$ amorti,
-          au prix d'une consommation mémoire pouvant atteindre $2n$.
+    \item Le \textbf{tableau dynamique} equilibre flexibilite et
+          performance grace au redimensionnement en $O(1)$ amorti,
+          au prix d'une consommation memoire pouvant atteindre $2n$.
 
-    \item La \textbf{liste doublement chaînée} excelle pour les
-          insertions et suppressions en tête et en queue ($O(1)$),
-          mais perd l'accès direct par index ($\Theta(n)$) et
-          impose un surcoût mémoire de deux pointeurs par noeud.
+    \item La \textbf{liste chainee} excelle pour les insertions et
+          suppressions en tete ($O(1)$), mais perd l'acces direct
+          par index ($\Theta(n)$).
 \end{itemize}
 
 \subsection{Perspectives}
 
-Des structures plus avancées comme les arbres binaires de recherche
-équilibrés (AVL, rouge-noir) ou les tables de hachage permettraient
-d'atteindre une complexité $O(\log n)$ pour la recherche, au prix
-d'une implémentation plus complexe.
+Des structures plus avancees comme les arbres binaires de recherche
+equilibres (AVL, rouge-noir) ou les tables de hachage permettraient
+d'atteindre une complexite $O(\log n)$ pour la recherche, au prix
+d'une implementation plus complexe.
 
 % ============================================================
-% RÉFÉRENCES BIBLIOGRAPHIQUES
+% REFERENCES BIBLIOGRAPHIQUES
 % ============================================================
 \begin{thebibliography}{9}
 
 \bibitem{cormen}
 Cormen T. H., Leiserson C. E., Rivest R. L., Stein C.,
-\textit{Introduction to Algorithms}, 4\textsuperscript{e} édition,
+\textit{Introduction to Algorithms}, 4\textsuperscript{e} edition,
 MIT Press, 2022.
 
 \bibitem{sedgewick}
 Sedgewick R., Wayne K.,
-\textit{Algorithms}, 4\textsuperscript{e} édition,
+\textit{Algorithms}, 4\textsuperscript{e} edition,
 Addison-Wesley, 2011.
 
 \bibitem{knuth}
 Knuth D. E.,
 \textit{The Art of Computer Programming, vol. 3 : Sorting and Searching},
-2\textsuperscript{e} édition, Addison-Wesley.
+2\textsuperscript{e} edition, Addison-Wesley.
 
 \bibitem{aho}
 Aho A. V., Hopcroft J. E., Ullman J. D.,
@@ -790,17 +686,17 @@ Addison-Wesley.
 \bibitem{kr}
 Kernighan B. W., Ritchie D. M.,
 \textit{The C Programming Language},
-2\textsuperscript{e} édition, Prentice Hall.
+2\textsuperscript{e} edition, Prentice Hall.
 
 \bibitem{beauquier}
-Beauquier D., Berstel J., Chrétienne P.,
-\textit{Éléments d'algorithmique},
+Beauquier D., Berstel J., Chretienne P.,
+\textit{Elements d'algorithmique},
 Masson.
 
 \end{thebibliography}
 
-\section*{Dépôt Git}
-Le code source complet du projet est disponible publiquement à 
+\section*{Depot Git}
+Le code source complet du projet est disponible publiquement a
 l'adresse suivante :
 \begin{center}
 \url{https://github.com/TON_USERNAME/SENE-DIONE_SD}

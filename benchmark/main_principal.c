@@ -3,20 +3,99 @@
 #include <string.h>
 #include <math.h>
 #include <time.h>
+#include <windows.h>
+#include <wchar.h>
 
 #include "../include/tableau_statique.h"
 #include "../include/tableau_dynamique.h"
 #include "../include/liste_chainee.h"
 #include "generateur_donnee.h"
 
-
-
 #define NB_REPETITIONS  10
 #define NB_TAILLES       4
 #define NB_DISTRIBUTIONS 3
 
-void nettoyerEcran() {
-    // Nettoyage d'écran compatible (Windows/Linux)
+/* ============================================================
+   COULEURS CONSOLE (Windows)
+   ============================================================ */
+#define COULEUR_DEFAUT   7   /* gris clair (defaut) */
+#define COULEUR_ENTETE   11  /* cyan clair          */
+#define COULEUR_TITRE    14  /* jaune                */
+#define COULEUR_MENU     10  /* vert clair           */
+#define COULEUR_PROMPT   13  /* magenta clair        */
+#define COULEUR_SUCCES   10  /* vert clair           */
+#define COULEUR_ERREUR   12  /* rouge clair          */
+#define COULEUR_DONNEE   15  /* blanc vif            */
+
+void set_couleur(int couleur)
+{
+    HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
+    SetConsoleTextAttribute(hConsole, (WORD)couleur);
+}
+
+void reset_couleur(void)
+{
+    set_couleur(COULEUR_DEFAUT);
+}
+
+/* Agrandit la police de la console Windows pour une meilleure lisibilite
+   des menus et sous-menus. A appeler une seule fois, au debut de main(). */
+void agrandir_police_console(void)
+{
+    HANDLE hOut = GetStdHandle(STD_OUTPUT_HANDLE);
+    CONSOLE_FONT_INFOEX cfi;
+    cfi.cbSize       = sizeof(cfi);
+    cfi.nFont        = 0;
+    cfi.dwFontSize.X = 0;      /* largeur automatique */
+    cfi.dwFontSize.Y = 20;     /* hauteur de police agrandie (par defaut ~16) */
+    cfi.FontFamily   = FF_DONTCARE;
+    cfi.FontWeight   = FW_NORMAL;
+    wcscpy(cfi.FaceName, L"Consolas");
+    SetCurrentConsoleFontEx(hOut, FALSE, &cfi);
+}
+
+/* ============================================================
+   ANIMATIONS CONSOLE
+   ============================================================ */
+void animer_texte(const char *texte, int delai_ms)
+{
+    for (int i = 0; texte[i] != '\0'; i++) {
+        putchar(texte[i]);
+        fflush(stdout);
+        Sleep(delai_ms);
+    }
+}
+
+void animer_chargement(const char *message, int duree_totale_ms)
+{
+    int largeur        = 30;
+    int etapes          = 30;
+    int delai_par_etape = duree_totale_ms / etapes;
+
+    set_couleur(COULEUR_PROMPT);
+    printf("%s\n", message);
+    reset_couleur();
+
+    printf("[");
+    for (int i = 0; i < largeur; i++) printf(" ");
+    printf("]");
+    printf("\r[");
+
+    set_couleur(COULEUR_SUCCES);
+    for (int i = 0; i < etapes; i++) {
+        printf("#");
+        fflush(stdout);
+        Sleep(delai_par_etape);
+    }
+    reset_couleur();
+    printf("] 100%%\n");
+}
+
+/* ============================================================
+   UTILITAIRES
+   ============================================================ */
+void nettoyerEcran(void)
+{
     #ifdef _WIN32
         system("cls");
     #else
@@ -24,581 +103,898 @@ void nettoyerEcran() {
     #endif
 }
 
-void afficherHeader() {
-   
+void vider_buffer(void)
+{
+    int c;
+    while ((c = getchar()) != '\n' && c != EOF);
+}
 
+int lire_choix_valide(int min, int max)
+{
+    char ligne[128];
+    int  choix;
+    int  valide = 0;
+
+    do {
+        if (fgets(ligne, sizeof(ligne), stdin) == NULL) {
+            clearerr(stdin);
+            continue;
+        }
+        if (sscanf(ligne, "%d", &choix) == 1 && choix >= min && choix <= max) {
+            valide = 1;
+        } else {
+            set_couleur(COULEUR_ERREUR);
+            printf("Choix invalide. Entrez un nombre entre %d et %d : ", min, max);
+            reset_couleur();
+        }
+    } while (!valide);
+
+    return choix;
+}
+
+char* lire_chaine_dynamique(void)
+{
+    char buffer[256];
+    fgets(buffer, sizeof(buffer), stdin);
+    buffer[strcspn(buffer, "\n")] = '\0';
+
+    char *resultat = malloc(strlen(buffer) + 1);
+    strcpy(resultat, buffer);
+    return resultat;
+}
+
+/* ============================================================
+   EN-TETE
+   ============================================================ */
+void afficherHeader(void)
+{
+    set_couleur(COULEUR_ENTETE);
     printf("################################################################\n");
     printf("               UNIVERSITE IBA DER THIAM DE THIES                \n");
     printf("                  UFR Sciences et Technologies                  \n");
     printf("            Departement de Mathematiques et Informatique        \n");
     printf("################################################################\n\n");
-    printf("                  Systeme de Gestion de Scolaritee            \n\n");
+    set_couleur(COULEUR_TITRE);
+    printf("                  Systeme de Gestion de Scolarite               \n\n");
+    reset_couleur();
     printf("      Conception, Implementation et Evaluation Comparative      \n");
-    printf("                  de Structures de Donnees en C               \n\n");
+    printf("                  de Structures de Donnees en C                 \n\n");
+    set_couleur(COULEUR_ENTETE);
     printf("##############################################################\n\n");
+    reset_couleur();
     printf("     Projet  Algorithmique et Structures de Donnees             \n");
     printf("     Filiere : Licence 2 Mathematiques-Informatique (LMI 2)     \n");
     printf("     Annee universitaire : 2025-2026                            \n\n");
-    printf("     Binome                               Enseignant :                                      \n");
-    printf("     AIDA SENE                    Dr Abdoulaye DIALLO       \n");
-    printf("     COURA NDIONE                                        \n\n");
-    printf("     Annee universitaire : 2025-2026                             \n");
-    printf("     Rendu: JUILLET 2026                                        \n");
+    printf("     Binome                               Enseignant :         \n");
+    printf("     AIDA SENE                    Dr Abdoulaye DIALLO          \n");
+    printf("     COURA NDIONE                                              \n\n");
+    printf("     Rendu: JUILLET 2026                                       \n");
+    set_couleur(COULEUR_ENTETE);
     printf("##############################################################\n\n");
+    reset_couleur();
 }
 
+/* ============================================================
+   MENU PRINCIPAL
+   ============================================================ */
 void afficher_menu_principal(void)
 {
-    printf("\n***********************************\n");
-    printf("  --- Démonstrations automatiques ---\n");
-    printf("  1. Démo Tableau Statique\n");
-    printf("  2. Démo Tableau Dynamique\n");
-    printf("  3. Démo Liste Doublement Chaînée\n");
-    printf("  --- Menus interactifs (saisie clavier) ---\n");
-    printf("  4. Interface Tableau Statique\n");
-    printf("  5. Interface Tableau Dynamique\n");
-    printf("  6. Interface Liste Doublement Chaînée\n");
-    printf("  --- Outils ---\n");
-    printf("  7. Lancer le Benchmark complet\n");
-    printf("  0. Quitter\n");
-    printf("********************************************\n");
+    set_couleur(COULEUR_TITRE);
+    printf("\n===================================================\n");
+    printf("                  MENU PRINCIPAL                    \n");
+    printf("===================================================\n");
+    reset_couleur();
+
+    set_couleur(COULEUR_MENU);
+    printf("  1. TABLEAU STATIQUE\n");
+    printf("  2. TABLEAU DYNAMIQUE\n");
+    printf("  3. LISTE CHAINEE\n");
+    printf("  4. BENCHMARK\n");
+    printf("  0. QUITTER\n");
+    reset_couleur();
+
+    set_couleur(COULEUR_TITRE);
+    printf("===================================================\n");
+    reset_couleur();
+
+    set_couleur(COULEUR_PROMPT);
     printf("Votre choix : ");
+    reset_couleur();
 }
 
-void demo_tableau_statique(void)
+void afficher_sous_menu(const char *nom_structure)
 {
-    printf("\n========== TABLEAU STATIQUE ==========\n\n");
+    set_couleur(COULEUR_TITRE);
+    printf("\n===================================================\n");
+    printf("   %s\n", nom_structure);
+    printf("===================================================\n");
+    reset_couleur();
 
-    static Etudiant tab[100000];   /* static : evite le depassement de pile */
-    int n = 0, i;
-
-    Etudiant e1, e2, e3, e4, e5;
-    e1.matricule = 1001; e1.moyenne = 14.50; strcpy(e1.nom, "Ndiaye");
-    e1.prenom = malloc(strlen("Dethie") + 1); strcpy(e1.prenom, "Dethie");
-
-    e2.matricule = 1002; e2.moyenne = 12.00; strcpy(e2.nom, "Sene");
-    e2.prenom = malloc(strlen("Aida") + 1); strcpy(e2.prenom, "Aida");
-
-    e3.matricule = 1003; e3.moyenne = 17.50; strcpy(e3.nom, "Thiam");
-    e3.prenom = malloc(strlen("Anta") + 1); strcpy(e3.prenom, "Anta");
-
-    e4.matricule = 1004; e4.moyenne =  9.00; strcpy(e4.nom, "Dione");
-    e4.prenom = malloc(strlen("Coura") + 1); strcpy(e4.prenom, "Coura");
-
-    e5.matricule = 1005; e5.moyenne = 15.75; strcpy(e5.nom, "Diop");
-    e5.prenom = malloc(strlen("Mama") + 1); strcpy(e5.prenom, "Mama");
-
-    insertionTableau(tab, &n, e1);
-    insertionTableau(tab, &n, e2);
-    insertionTableau(tab, &n, e3);
-    insertionTableau(tab, &n, e4);
-    insertionTableau(tab, &n, e5);
-
-    printf("--- Affichage ---\n");
-    for (i = 0; i < n; i++)
-        printf("  [%d] matricule:%d | %s | moyenne:%.2f\n",
-               i, tab[i].matricule, tab[i].nom, tab[i].moyenne);
-
-    printf("\n--- Recherche matricule 1003 ---\n");
-    int pos = RechercheCleprimaire(tab, n, 1003);
-    if (pos > -1)
-        printf("  Trouve : %s — %.2f\n", tab[pos].nom, tab[pos].moyenne);
-
-    printf("\n--- Recherche intervalle [10, 15] ---\n");
-    RechercheParIntervalle(tab, n, 10.0, 15.0);
+    set_couleur(COULEUR_MENU);
     printf("\n");
+    printf("   1.  INSERER\n");
+    printf("   2.  AFFICHER UN ETUDIANT\n");
+    printf("   3.  AFFICHER TOUT\n");
+    printf("   4.  RECHERCHER PAR MATRICULE\n");
+    printf("   5.  RECHERCHER PAR INTERVALLE\n");
+    printf("   6.  RECHERCHER PAR PREFIXE\n");
+    printf("   7.  SUPPRIMER\n");
+    printf("   8.  MISE A JOUR\n");
+    printf("   9.  TRIER PAR INSERTION\n");
+    printf("   10. TRIER PAR RAPIDE\n");
+    printf("\n");
+    printf("   0.  RETOUR\n");
+    printf("\n");
+    reset_couleur();
 
-    printf("\n--- Tri par insertion ---\n");
-    Tri_insertion_moyenne(tab, n);
-    for (i = 0; i < n; i++)
-        printf("  [%d] %s — %.2f\n", i, tab[i].nom, tab[i].moyenne);
+    set_couleur(COULEUR_TITRE);
+    printf("===================================================\n");
+    reset_couleur();
 
-    printf("\n--- Statistiques ---\n");
-    printf("  Moyenne generale : %.2f\n", MoyenneDesmoyennes(tab, n));
-    printf("  Min : %d  Max : %d\n",
-           minimumDesmoyennes(tab, n), maximumDesmoyennes(tab, n));
-    printf("  Mediane : %.2f\n", MedianeDesmoyennes(tab, n));
-    printf("  Ecart-type : %.2f\n", EcartTypeDesmoyennes(tab, n));
-
-    printf("\n--- Suppression matricule 1004 ---\n");
-    suppressionCleprimaire(tab, &n, 1004);
-    printf("Taille finale : %d\n", n);
+    set_couleur(COULEUR_PROMPT);
+    printf("Choix : ");
+    reset_couleur();
 }
 
-void demo_tableau_dynamique(void)
-{
-    printf("\n========== TABLEAU DYNAMIQUE ==========\n\n");
-
-    TableauDyn *t = creer_tableau_dyn();
-    Date d = {1, 1, 2006};
-
-    char *noms[]    = {"Ndiaye","Sène","Thiam","Ndione","Diop"};
-    char *prenoms[] = {"Déthié","Aida","Anta","Coura","Mama"};
-    float moys[]    = {14.5, 15.0, 17.5, 16.0, 18.5};
-     int i;
-    for (i = 0; i < 5; i++) {
-        Etudiant *e = creer_etudiant(1000 + i, moys[i], noms[i], prenoms[i], d);
-        inserer_etudiant_dyn(t, e);
-    }
-
-    afficher_tableau_dyn(t);
-
-    printf("\n--- Recherche matricule 1002 ---\n");
-    Etudiant *e = rechercher_par_matricule_dyn(t, 1002);
-    if (e) printf("Trouve : %s %s\n", e->nom, e->prenom);
-
-    printf("\n");
-    rechercher_par_intervalle_dyn(t, 10.0f, 15.0f);
-    printf("\n");
-    rechercher_par_prefixe_dyn(t, "Di");
-
-    printf("\n--- Statistiques ---\n");
-    printf("  Moyenne    : %.2f\n", moyenne_generale_dyn(t));
-    printf("  Min        : %.2f\n", minimum_dyn(t));
-    printf("  Max        : %.2f\n", maximum_dyn(t));
-    printf("  Mediane    : %.2f\n", mediane_dyn(t));
-    printf("  Ecart-type : %.2f\n", ecart_type_dyn(t));
-
-    printf("\n--- Tri rapide ---\n");
-    tri_rapide_dyn(t, 0, t->taille - 1);
-    afficher_tableau_dyn(t);
-
-    liberer_tableau_dyn(t);
-    printf("\nMemoire liberee.\n");
-}
-
-void demo_liste_chainee(void)
-{
-    printf("\n========== LISTE DOUBLEMENT CHAÎNÉE ==========\n\n");
-
-    ListeDC *l = creer_liste();
-    Date d = {1, 1, 2006};
-
-    inserer_en_queue(l, creer_etudiant(1001, 14.5, "Ndiaye", "Déthié",  d));
-    inserer_en_queue(l, creer_etudiant(1002, 12.0, "Sène", "Aida",   d));
-    inserer_en_queue(l, creer_etudiant(1003, 17.5, "Thiam",    "Anta",    d));
-    inserer_en_tete (l, creer_etudiant(1004,  9.0, "Dione",   "Coura",     d));
-    inserer_en_queue(l, creer_etudiant(1006, 16.0, "Diop",   "Mama", d));
-
-    afficher_liste(l);
-    printf("\n--- Affichage inverse ---\n");
-    afficher_liste_inverse(l);
-
-    printf("\n");
-    rechercher_intervalle_liste(l, 10.0, 15.0);
-    printf("\n");
-    rechercher_prefixe_liste(l, "Di");
-
-    printf("\n--- Statistiques ---\n");
-    printf("  Moyenne    : %.2f\n", moyenne_generale_liste(l));
-    printf("  Min        : %.2f\n", minimum_liste(l));
-    printf("  Max        : %.2f\n", maximum_liste(l));
-    printf("  Mediane    : %.2f\n", mediane_liste(l));
-    printf("  Ecart-type : %.2f\n", ecart_type_liste(l));
-
-    printf("\n--- Tri par insertion ---\n");
-    tri_insertion_liste(l);
-    afficher_liste(l);
-
-    liberer_liste(l);
-    printf("\nMemoire liberee.\n");
-}
-
-void interface_tableau_statique(void)
+/* ============================================================
+   MENU TABLEAU STATIQUE
+   ============================================================ */
+void menu_tableau_statique(void)
 {
     static Etudiant tab[100000];
-    static int n = 0, i;
+    static int n = 0;
+    int i;
     int choix = -1;
 
     while (choix != 0) {
-        printf("\n--- Interface Tableau Statique (%d/%d) ---\n", n, 100000);
-        printf("1. Ajouter   2. Afficher   3. Rechercher matricule\n");
-        printf("4. Rechercher intervalle   5. Rechercher prefixe\n");
-        printf("6. Supprimer 7. Trier (insertion) 8. Trier (rapide)\n");
-        printf("9. Statistiques            0. Retour\n");
-        printf("Choix : ");
-        scanf("%d", &choix);
+        afficher_sous_menu("TABLEAU STATIQUE");
+        choix = lire_choix_valide(0, 10);
         nettoyerEcran();
 
         switch (choix) {
+
+            /* --- 1. INSERER (plusieurs etudiants) --- */
             case 1: {
-                Etudiant e;
-                printf("Matricule : "); 
-                scanf("%d", &e.matricule);
+                printf("--- Insertion des etudiants ---\n");
+                int nbE;
+                printf("  Combien d'etudiants a ajouter ? ");
+                scanf("%d", &nbE);
+                while (getchar() != '\n');
+
+                for (int k = 0; k < nbE; k++) {
+                    printf("\n--- Etudiant %d/%d ---\n", k + 1, nbE);
+                    Etudiant e;
+
+                    printf("Matricule : ");
+                    scanf("%d", &e.matricule);
+                    vider_buffer();
+
+                    printf("Nom : ");
+                    fgets(e.nom, sizeof(e.nom), stdin);
+                    e.nom[strcspn(e.nom, "\n")] = '\0';
+
+                    printf("Moyenne : ");
+                    scanf("%f", &e.moyenne);
+                    vider_buffer();
+
+                    printf("Jour Mois Annee : ");
+                    scanf("%d %d %d", &e.dateNaissance.jour,
+                          &e.dateNaissance.mois, &e.dateNaissance.annee);
+                    vider_buffer();
+
+                    if (insertionTableau(tab, &n, e)) {
+                        set_couleur(COULEUR_SUCCES);
+                        printf("Etudiant ajoute.\n");
+                        reset_couleur();
+                    } else {
+                        set_couleur(COULEUR_ERREUR);
+                        printf("Echec de l'insertion (tableau plein ?).\n");
+                        reset_couleur();
+                    }
+                }   /* ferme le for : tous les etudiants sont inseres */
+
+                printf("\nAppuyez sur Entree pour continuer...");
+                getchar();
+                break;
+            }   /* ferme le case 1 (accolade qui manquait avant) */
+
+            /* --- 2. AFFICHER UN ETUDIANT (par index) --- */
+            case 2: {
+                if (n == 0) {
+                    set_couleur(COULEUR_ERREUR);
+                    printf("Aucun etudiant enregistre pour le moment.\n");
+                    reset_couleur();
+                    printf("\nAppuyez sur Entree pour continuer...");
+                    getchar();
+                    break;
+                }
+
+                int id;
+                printf("Index de l'etudiant (0 a %d) : ", n - 1);
+                scanf("%d", &id);
+                vider_buffer();
                 nettoyerEcran();
-                while(getchar()!='\n');
-                printf("Nom : ");
-                fgets(e.nom, sizeof(e.nom), stdin);
-                e.nom[strcspn(e.nom, "\n")] = '\0';
-                printf("Moyenne : ");
-                 scanf("%f", &e.moyenne);
-                  nettoyerEcran();
-                if (insertionTableau(tab, &n, e))
-                    printf("Etudiant ajoute.\n");
+
+                if (id >= 0 && id < n) {
+                    set_couleur(COULEUR_DONNEE);
+                    printf("[%d] matricule:%d dateNaissance:%02d/%02d/%d | %s %s | moyenne:%.2f\n",
+                           id, tab[id].matricule, tab[id].dateNaissance.jour, tab[id].dateNaissance.mois,
+                           tab[id].dateNaissance.annee, tab[id].nom, tab[id].prenom, tab[id].moyenne);
+                    reset_couleur();
+                } else {
+                    set_couleur(COULEUR_ERREUR);
+                    printf("Index invalide.\n");
+                    reset_couleur();
+                }
+
+                printf("\nAppuyez sur Entree pour continuer...");
+                getchar();
                 break;
             }
-            case 2:
-                for (i = 0; i < n; i++)
-                    printf("  [%d] matricule:%d | %s | moyenne:%.2f\n",
-                           i, tab[i].matricule, tab[i].nom, tab[i].moyenne);
-                break;
+
+            /* --- 3. AFFICHER TOUT --- */
             case 3: {
-                int matricule;
-                printf("Matricule : "); 
-                scanf("%d", &matricule); 
-                nettoyerEcran();
-                int pos = RechercheCleprimaire(tab, n, matricule);
-                if (pos > -1)
-                    printf("Trouve : %s — %.2f\n", tab[pos].nom, tab[pos].moyenne);
-                else
-                    printf("Non trouve.\n");
+                if (n == 0) {
+                    set_couleur(COULEUR_ERREUR);
+                    printf("Aucun etudiant enregistre pour le moment.\n");
+                    reset_couleur();
+                } else {
+                    printf("Affichage de tous les etudiants (%d au total) :\n", n);
+                    for (i = 0; i < n; i++)
+                        printf("  [%d] matricule:%d dateNaissance:%02d/%02d/%d | %s %s | moyenne:%.2f\n",
+                               i, tab[i].matricule,
+                               tab[i].dateNaissance.jour, tab[i].dateNaissance.mois,
+                               tab[i].dateNaissance.annee,
+                               tab[i].nom, tab[i].prenom, tab[i].moyenne);
+                }
+
+                printf("\nAppuyez sur Entree pour continuer...");
+                getchar();
                 break;
             }
+
+            /* --- 4. RECHERCHER UN ETUDIANT (par matricule) --- */
             case 4: {
-                float min, max;
-                printf("Min : ");
-                scanf("%f", &min);
-                printf("Max : "); 
-                scanf("%f", &max); 
-                nettoyerEcran();
-                RechercheParIntervalle(tab, n, min, max);
-                printf("\n");
-                break;
-            }
-            case 5: {
-                char prefixe[40];
-                printf("Prefixe : ");
-                fgets(prefixe, sizeof(prefixe), stdin);
-                prefixe[strcspn(prefixe, "\n")] = '\0';
-                RechercheParPrefixe(tab, n, prefixe);
-                printf("\n");
-                break;
-            }
-            case 6: {
                 int matricule;
-                printf("Matricule : "); 
-                scanf("%d", &matricule); 
+                printf("Matricule : ");
+                scanf("%d", &matricule);
+                vider_buffer();
+                nettoyerEcran();
+
+                int pos = RechercheCleprimaire(tab, n, matricule);
+                if (pos > -1) {
+                    set_couleur(COULEUR_SUCCES);
+                    printf("Trouve : %s -- %.2f\n", tab[pos].nom, tab[pos].moyenne);
+                    reset_couleur();
+                } else {
+                    set_couleur(COULEUR_ERREUR);
+                    printf("Non trouve.\n");
+                    reset_couleur();
+                }
+                break;
+            }
+
+            /* --- 5. RECHERCHER PAR INTERVALLE --- */
+            case 5: {
+                double maxmoyenne = 0, minmoyenne = 0;
+                int trouve = 0;
+                printf("moyenne min : ");
+                scanf("%lf", &minmoyenne);
+                printf("moyenne max : ");
+                scanf("%lf", &maxmoyenne);
+                vider_buffer();
+                nettoyerEcran();
+
+                for (i = 0; i < n; i++) {
+                    if (tab[i].moyenne >= minmoyenne && tab[i].moyenne <= maxmoyenne) {
+                        trouve++;
+                        set_couleur(COULEUR_SUCCES);
+                        printf("Trouve : %s -- %.2f\n", tab[i].nom, tab[i].moyenne);
+                        reset_couleur();
+                    }
+                }
+                if (!trouve) {
+                    set_couleur(COULEUR_ERREUR);
+                    printf("Non trouve.\n");
+                    reset_couleur();
+                }
+                break;
+            }
+
+            /* --- 6. RECHERCHER PAR PREFIXE --- */
+            case 6: {
+                char prefixe[100];
+                int trouve = 0;
+                printf("Prefixe : ");
+                scanf("%s", prefixe);
+                vider_buffer();
+                nettoyerEcran();
+
+                for (i = 0; i < n; i++) {
+                    if (strncmp(tab[i].nom, prefixe, strlen(prefixe)) == 0) {
+                        trouve++;
+                        set_couleur(COULEUR_SUCCES);
+                        printf("Trouve : %s %s -- matricule:%d -- moyenne:%.2f\n",
+                               tab[i].prenom, tab[i].nom, tab[i].matricule, tab[i].moyenne);
+                        reset_couleur();
+                    }
+                }
+                if (!trouve) {
+                    set_couleur(COULEUR_ERREUR);
+                    printf("Non trouve.\n");
+                    reset_couleur();
+                }
+                break;
+            }
+
+            /* --- 7. SUPPRIMER --- */
+            case 7: {
+                int matricule;
+                printf("Matricule : ");
+                scanf("%d", &matricule);
+                vider_buffer();
                 nettoyerEcran();
                 suppressionCleprimaire(tab, &n, matricule);
                 break;
             }
-            case 7:
-                Tri_insertion_moyenne(tab, n);
-                printf("Trie par insertion.\n");
-                break;
-            case 8:
-                if (n > 1) TriRapide(tab, 0, n - 1);
-                printf("Trie par tri rapide.\n");
-                break;
-            case 9:
-                if (n > 0) {
-                    printf("Moyenne generale : %.2f\n", MoyenneDesmoyennes(tab, n));
-                    printf("Min : %d  Max : %d\n",
-                           minimumDesmoyennes(tab, n), maximumDesmoyennes(tab, n));
-                    printf("Mediane : %.2f\n", MedianeDesmoyennes(tab, n));
-                    printf("Ecart-type : %.2f\n", EcartTypeDesmoyennes(tab, n));
-                } else {
-                    printf("Tableau vide.\n");
+
+            /* --- 8. MISE A JOUR --- */
+            case 8: {
+                int matricule, pos = -1, sousChoix;
+                printf("Matricule de l'etudiant a mettre a jour : ");
+                scanf("%d", &matricule);
+                vider_buffer();
+                nettoyerEcran();
+
+                for (i = 0; i < n; i++) {
+                    if (tab[i].matricule == matricule) { pos = i; break; }
                 }
+                if (pos == -1) {
+                    set_couleur(COULEUR_ERREUR);
+                    printf("Etudiant non trouve.\n");
+                    reset_couleur();
+                    break;
+                }
+
+                printf("Etudiant trouve : %s %s -- %.2f\n",
+                       tab[pos].nom, tab[pos].prenom, tab[pos].moyenne);
+                printf("1. Nom  2. Prenom  3. Moyenne  4. Tout mettre a jour\n");
+                printf("Choix : ");
+                sousChoix = lire_choix_valide(1, 4);
+                nettoyerEcran();
+
+                if (sousChoix == 1 || sousChoix == 4) {
+                    printf("Nouveau nom : ");
+                    fgets(tab[pos].nom, sizeof(tab[pos].nom), stdin);
+                    tab[pos].nom[strcspn(tab[pos].nom, "\n")] = '\0';
+                }
+                if (sousChoix == 2 || sousChoix == 4) {
+                    printf("Nouveau prenom : ");
+                    free(tab[pos].prenom);
+                    tab[pos].prenom = lire_chaine_dynamique();
+                }
+                if (sousChoix == 3 || sousChoix == 4) {
+                    printf("Nouvelle moyenne : ");
+                    scanf("%f", &tab[pos].moyenne);
+                    vider_buffer();
+                }
+
+                set_couleur(COULEUR_SUCCES);
+                printf("Etudiant mis a jour avec succes !\n");
+                reset_couleur();
                 break;
+            }
+
+            /* --- 9. TRIER PAR INSERTION --- */
+            case 9: {
+                Tri_insertion_moyenne(tab, n);
+                set_couleur(COULEUR_SUCCES);
+                printf("Tri par insertion effectue (par moyenne).\n");
+                reset_couleur();
+                for (i = 0; i < n; i++)
+                    printf("  [%d] matricule:%d | %s | moyenne:%.2f\n",
+                           i, tab[i].matricule, tab[i].nom, tab[i].moyenne);
+                break;
+            }
+
+            /* --- 10. TRIER PAR RAPIDE --- */
+            case 10: {
+                if (n > 1) TriRapide(tab, 0, n - 1);
+                set_couleur(COULEUR_SUCCES);
+                printf("Tri rapide effectue (par moyenne).\n");
+                reset_couleur();
+                for (i = 0; i < n; i++)
+                    printf("  [%d] matricule:%d | %s | moyenne:%.2f\n",
+                           i, tab[i].matricule, tab[i].nom, tab[i].moyenne);
+                break;
+            }
+
             case 0:
                 break;
-            default:
-                printf("Choix invalide.\n");
         }
     }
 }
 
-void interface_tableau_dynamique(void)
+/* ============================================================
+   MENU TABLEAU DYNAMIQUE
+   ============================================================ */
+void menu_tableau_dynamique(void)
 {
     TableauDyn *t = creer_tableau_dyn();
     int choix = -1;
 
     while (choix != 0) {
-        printf("\n--- Interface Tableau Dynamique (%d/%d) ---\n",
-               t->taille, t->capacite);
-        printf("1. Ajouter   2. Afficher   3. Rechercher matricule\n");
-        printf("4. Rechercher intervalle   5. Rechercher prefixe\n");
-        printf("6. Supprimer 7. Modifier moyenne\n");
-        printf("8. Trier (insertion) 9. Trier (rapide)\n");
-        printf("10. Statistiques  11. Sauvegarder  12. Charger\n");
-        printf("0. Retour\n");
-        printf("Choix : ");
-        scanf("%d", &choix);
+        afficher_sous_menu("TABLEAU DYNAMIQUE");
+        choix = lire_choix_valide(0, 10);
         nettoyerEcran();
 
         switch (choix) {
+
+            /* --- 1. INSERER (plusieurs etudiants) --- */
             case 1: {
-                int matricule; 
-                float moyenne; 
-                char nom[40], prenom[100];
-                Date date;
-                printf("Matricule : "); 
-                scanf("%d", &matricule); 
+                int nbE;
+                printf("  Combien d'etudiants a ajouter ? ");
+                scanf("%d", &nbE);
+                while (getchar() != '\n');
+
+                for (int k = 0; k < nbE; k++) {
+                    printf("\n--- Etudiant %d/%d ---\n", k + 1, nbE);
+
+                    int matricule;
+                    float moyenne;
+                    char nom[100], prenom[100];
+                    Date date;
+
+                    printf("Matricule : ");
+                    scanf("%d", &matricule);
+                    vider_buffer();
+
+                    printf("Nom : ");
+                    fgets(nom, sizeof(nom), stdin);
+                    nom[strcspn(nom, "\n")] = '\0';
+
+                    printf("Prenom : ");
+                    fgets(prenom, sizeof(prenom), stdin);
+                    prenom[strcspn(prenom, "\n")] = '\0';
+
+                    printf("Moyenne : ");
+                    scanf("%f", &moyenne);
+                    vider_buffer();
+
+                    printf("Jour Mois Annee : ");
+                    scanf("%d %d %d", &date.jour, &date.mois, &date.annee);
+                    vider_buffer();
+
+                    Etudiant *e = creer_etudiant(matricule, moyenne, nom, prenom, date);
+                    inserer_etudiant_dyn(t, e);
+                }
+
                 nettoyerEcran();
-                printf("Nom : "); fgets(nom, sizeof(nom), stdin);
-                nom[strcspn(nom, "\n")] = '\0';
-                printf("Prenom : "); 
-                fgets(prenom, sizeof(prenom), stdin);
-                prenom[strcspn(prenom, "\n")] = '\0';
-                printf("Moyenne : "); 
-                scanf("%f", &moyenne); 
-                nettoyerEcran();
-                printf("Jour Mois Annee : ");
-                scanf("%d %d %d", &date.jour, &date.mois, &date.annee);
+                set_couleur(COULEUR_SUCCES);
+                printf("%d etudiant(s) ajoute(s).\n", nbE);
+                reset_couleur();
+                printf("\nAppuyez sur Entree pour continuer...");
+                getchar();
+                break;
+            }
+
+            /* --- 2. AFFICHER UN ETUDIANT (par index) --- */
+            case 2: {
+                if (t->taille == 0) {
+                    set_couleur(COULEUR_ERREUR);
+                    printf("Aucun etudiant enregistre pour le moment.\n");
+                    reset_couleur();
+                    printf("\nAppuyez sur Entree pour continuer...");
+                    getchar();
+                    break;
+                }
+
+                int id;
+                printf("Index de l'etudiant (0 a %d) : ", t->taille - 1);
+                scanf("%d", &id);
+                vider_buffer();
                 nettoyerEcran();
 
-                Etudiant *e = creer_etudiant(matricule, moyenne, nom, prenom, date);
-                inserer_etudiant_dyn(t, e);
-                printf("Etudiant ajoute.\n");
+                if (id >= 0 && id < t->taille) {
+                    Etudiant *e = t->tab[id];
+                    set_couleur(COULEUR_DONNEE);
+                    printf("[%d] matricule:%d dateNaissance:%02d/%02d/%d | %s %s | moyenne:%.2f\n",
+                           id, e->matricule, e->dateNaissance.jour, e->dateNaissance.mois,
+                           e->dateNaissance.annee, e->nom, e->prenom, e->moyenne);
+                    reset_couleur();
+                } else {
+                    set_couleur(COULEUR_ERREUR);
+                    printf("Index invalide.\n");
+                    reset_couleur();
+                }
+
+                printf("\nAppuyez sur Entree pour continuer...");
+                getchar();
                 break;
             }
-            case 2:
-                afficher_tableau_dyn(t);
-                break;
+
+            /* --- 3. AFFICHER TOUT --- */
             case 3: {
+                if (t->taille == 0) {
+                    set_couleur(COULEUR_ERREUR);
+                    printf("Aucun etudiant enregistre pour le moment.\n");
+                    reset_couleur();
+                } else {
+                    afficher_tableau_dyn(t);
+                }
+                printf("\nAppuyez sur Entree pour continuer...");
+                getchar();
+                break;
+            }
+
+            /* --- 4. RECHERCHER UN ETUDIANT --- */
+            case 4: {
                 int matricule;
                 printf("Matricule : ");
-                scanf("%d", &matricule); nettoyerEcran();
+                scanf("%d", &matricule);
+                vider_buffer();
+                nettoyerEcran();
+
                 Etudiant *e = rechercher_par_matricule_dyn(t, matricule);
-                if (e) printf("Trouve : %s %s — %.2f\n", e->nom, e->prenom, e->moyenne);
-                else printf("Non trouve.\n");
+                if (e) {
+                    set_couleur(COULEUR_SUCCES);
+                    printf("Trouve : %s %s -- %.2f\n", e->nom, e->prenom, e->moyenne);
+                    reset_couleur();
+                } else {
+                    set_couleur(COULEUR_ERREUR);
+                    printf("Non trouve.\n");
+                    reset_couleur();
+                }
                 break;
             }
-            case 4: {
+
+            /* --- 5. RECHERCHER PAR INTERVALLE --- */
+            case 5: {
                 float min, max;
                 printf("Min : "); scanf("%f", &min);
-                printf("Max : "); scanf("%f", &max); nettoyerEcran();
+                printf("Max : "); scanf("%f", &max);
+                vider_buffer();
+                nettoyerEcran();
                 rechercher_par_intervalle_dyn(t, min, max);
                 break;
             }
-            case 5: {
-                char prefixe[40];
-                printf("Prefixe : "); 
-                fgets(prefixe, sizeof(prefixe), stdin);
-                prefixe[strcspn(prefixe, "\n")] = '\0';
+
+            /* --- 6. RECHERCHER PAR PREFIXE --- */
+            case 6: {
+                char prefixe[100];
+                printf("Prefixe : ");
+                scanf("%s", prefixe);
+                vider_buffer();
+                nettoyerEcran();
                 rechercher_par_prefixe_dyn(t, prefixe);
                 break;
             }
-            case 6: {
+
+            /* --- 7. SUPPRIMER --- */
+            case 7: {
                 int matricule;
                 printf("Matricule : ");
-                scanf("%d", &matricule); 
+                scanf("%d", &matricule);
+                vider_buffer();
                 nettoyerEcran();
                 supprimer_par_matricule_dyn(t, matricule);
                 break;
             }
-            case 7: {
-                int matricule; 
+
+            /* --- 8. MISE A JOUR (moyenne) --- */
+            case 8: {
+                int matricule;
                 float nouvelle_moyenne;
                 printf("Matricule : "); scanf("%d", &matricule);
                 printf("Nouvelle moyenne : "); scanf("%f", &nouvelle_moyenne);
+                vider_buffer();
                 nettoyerEcran();
                 modifier_moyenne_dyn(t, matricule, nouvelle_moyenne);
+                set_couleur(COULEUR_SUCCES);
+                printf("Mise a jour effectuee.\n");
+                reset_couleur();
                 break;
             }
-            case 8:
-                tri_insertion_dyn(t);
-                printf("Trie par insertion.\n");
-                break;
+
+            /* --- 9. TRIER PAR INSERTION --- */
             case 9:
-                if (t->taille > 1) tri_rapide_dyn(t, 0, t->taille - 1);
-                printf("Trie par tri rapide.\n");
+                tri_insertion_dyn(t);
+                set_couleur(COULEUR_SUCCES);
+                printf("Trie par insertion.\n");
+                reset_couleur();
                 break;
+
+            /* --- 10. TRIER PAR RAPIDE --- */
             case 10:
-                if (t->taille > 0) {
-                    printf("Moyenne generale : %.2f\n", moyenne_generale_dyn(t));
-                    printf("Min : %.2f  Max : %.2f\n",
-                           minimum_dyn(t), maximum_dyn(t));
-                    printf("Mediane : %.2f\n", mediane_dyn(t));
-                    printf("Ecart-type : %.2f\n", ecart_type_dyn(t));
-                } else {
-                    printf("Tableau vide.\n");
-                }
+                if (t->taille > 1) tri_rapide_dyn(t, 0, t->taille - 1);
+                set_couleur(COULEUR_SUCCES);
+                printf("Trie par tri rapide.\n");
+                reset_couleur();
                 break;
-            case 11: {
-                char nom_fichier[100];
-                printf("Nom du fichier : "); fgets(nom_fichier, sizeof(nom_fichier), stdin);
-                nom_fichier[strcspn(nom_fichier, "\n")] = '\0';
-                serialiser_dyn(t, nom_fichier);
-                break;
-            }
-            case 12: {
-                char nom_fichier[100];
-                printf("Nom du fichier : "); fgets(nom_fichier, sizeof(nom_fichier), stdin);
-                nom_fichier[strcspn(nom_fichier, "\n")] = '\0';
-                TableauDyn *nouveau = deserialiser_dyn(nom_fichier);
-                if (nouveau) { liberer_tableau_dyn(t); t = nouveau; }
-                break;
-            }
+
             case 0:
                 break;
-            default:
-                printf("Choix invalide.\n");
         }
     }
 
     liberer_tableau_dyn(t);
 }
 
-void interface_liste_chainee(void)
+/* ============================================================
+   MENU LISTE CHAINEE
+   ============================================================ */
+void menu_liste_chainee(void)
 {
-    ListeDC *l = creer_liste();
+    ListeC *l = liste_creer();
     int choix = -1;
 
     while (choix != 0) {
-        printf("\n--- Interface Liste Doublement Chaînée (%d elements) ---\n",
-               l->taille);
-        printf("1. Ajouter en tete  2. Ajouter en queue\n");
-        printf("3. Afficher debut->fin  4. Afficher fin->debut\n");
-        printf("5. Rechercher matricule  6. Rechercher intervalle\n");
-        printf("7. Rechercher prefixe    8. Supprimer\n");
-        printf("9. Trier (insertion)    10. Trier (bulles)\n");
-        printf("11. Statistiques  12. Sauvegarder  13. Charger\n");
-        printf("0. Retour\n");
-        printf("Choix : ");
-        scanf("%d", &choix);
+        afficher_sous_menu("LISTE CHAINEE");
+        choix = lire_choix_valide(0, 10);
         nettoyerEcran();
 
         switch (choix) {
-            case 1:
+
+            /* --- 1. INSERER (plusieurs etudiants) --- */
+            case 1: {
+                int nbE;
+                printf("  Combien d'etudiants a ajouter ? ");
+                scanf("%d", &nbE);
+                while (getchar() != '\n');
+
+                for (int k = 0; k < nbE; k++) {
+                    printf("\n--- Etudiant %d/%d ---\n", k + 1, nbE);
+
+                    int matricule;
+                    float moyenne;
+                    char nom[100], prenom[100];
+                    Date date;
+
+                    printf("Matricule : ");
+                    scanf("%d", &matricule);
+                    vider_buffer();
+
+                    printf("Nom : ");
+                    fgets(nom, sizeof(nom), stdin);
+                    nom[strcspn(nom, "\n")] = '\0';
+
+                    printf("Prenom : ");
+                    fgets(prenom, sizeof(prenom), stdin);
+                    prenom[strcspn(prenom, "\n")] = '\0';
+
+                    printf("Moyenne : ");
+                    scanf("%f", &moyenne);
+                    vider_buffer();
+
+                    printf("Jour Mois Annee : ");
+                    scanf("%d %d %d", &date.jour, &date.mois, &date.annee);
+                    vider_buffer();
+
+                    Etudiant *e = creer_etudiant(matricule, moyenne, nom, prenom, date);
+                    inserer_en_queue(l, e);
+                }
+
+                nettoyerEcran();
+                set_couleur(COULEUR_SUCCES);
+                printf("%d etudiant(s) ajoute(s).\n", nbE);
+                reset_couleur();
+                printf("\nAppuyez sur Entree pour continuer...");
+                getchar();
+                break;
+            }
+
+            /* --- 2. AFFICHER UN ETUDIANT (par index) --- */
             case 2: {
-                int matricule;
-                float moyenne; 
-                char nom[40], prenom[100];
-                Date date;
-                printf("Matricule : ");
-                 scanf("%d", &matricule); 
-                 nettoyerEcran();
-                printf("Nom : "); 
-                fgets(nom, sizeof(nom), stdin);
-                nom[strcspn(nom, "\n")] = '\0';
-                printf("Prenom : "); 
-                fgets(prenom, sizeof(prenom), stdin);
-                prenom[strcspn(prenom, "\n")] = '\0';
-                printf("Moyenne : "); 
-                scanf("%f", &moyenne);
-                 nettoyerEcran();
-                printf("Jour Mois Annee : ");
-                scanf("%d %d %d", &date.jour, &date.mois, &date.annee);
+                if (l->taille == 0) {
+                    set_couleur(COULEUR_ERREUR);
+                    printf("Aucun etudiant enregistre pour le moment.\n");
+                    reset_couleur();
+                    printf("\nAppuyez sur Entree pour continuer...");
+                    getchar();
+                    break;
+                }
+
+                int id;
+                printf("Index de l'etudiant (0 a %d) : ", l->taille - 1);
+                scanf("%d", &id);
+                vider_buffer();
                 nettoyerEcran();
 
-                Etudiant *e = creer_etudiant(matricule, moyenne, nom, prenom, date);
-                if (choix == 1) { inserer_en_tete(l, e); printf("Ajoute en tete.\n"); }
-                else            { inserer_en_queue(l, e); printf("Ajoute en queue.\n"); }
+                if (id < 0 || id >= l->taille) {
+                    set_couleur(COULEUR_ERREUR);
+                    printf("Index invalide.\n");
+                    reset_couleur();
+                } else {
+                    Noeud *courant = l->tete;
+                    int k;
+                    for (k = 0; k < id; k++) {
+                        courant = courant->suivant;
+                    }
+                    Etudiant *e = courant->suivant->etudiant;
+                    set_couleur(COULEUR_DONNEE);
+                    printf("[%d] matricule:%d dateNaissance:%02d/%02d/%d | %s %s | moyenne:%.2f\n",
+                           id, e->matricule, e->dateNaissance.jour, e->dateNaissance.mois,
+                           e->dateNaissance.annee, e->nom, e->prenom, e->moyenne);
+                    reset_couleur();
+                }
+
+                printf("\nAppuyez sur Entree pour continuer...");
+                getchar();
                 break;
             }
-            case 3:
-                afficher_liste(l);
+
+            /* --- 3. AFFICHER TOUT --- */
+            case 3: {
+                if (l->taille == 0) {
+                    set_couleur(COULEUR_ERREUR);
+                    printf("Aucun etudiant enregistre pour le moment.\n");
+                    reset_couleur();
+                } else {
+                    afficher_liste(l);
+                }
+                printf("\nAppuyez sur Entree pour continuer...");
+                getchar();
                 break;
-            case 4:
-                afficher_liste_inverse(l);
-                break;
-            case 5: {
+            }
+
+            /* --- 4. RECHERCHER UN ETUDIANT --- */
+            case 4: {
                 int matricule;
-                printf("Matricule : "); scanf("%d", &matricule); nettoyerEcran();
+                printf("Matricule : ");
+                scanf("%d", &matricule);
+                vider_buffer();
+                nettoyerEcran();
+
                 Etudiant *e = rechercher_matricule_liste(l, matricule);
-                if (e) printf("Trouve : %s %s — %.2f\n", e->nom, e->prenom, e->moyenne);
-                else printf("Non trouve.\n");
+                if (e) {
+                    set_couleur(COULEUR_SUCCES);
+                    printf("Trouve : %s %s -- %.2f\n", e->nom, e->prenom, e->moyenne);
+                    reset_couleur();
+                } else {
+                    set_couleur(COULEUR_ERREUR);
+                    printf("Non trouve.\n");
+                    reset_couleur();
+                }
                 break;
             }
-            case 6: {
+
+            /* --- 5. RECHERCHER PAR INTERVALLE --- */
+            case 5: {
                 float min, max;
                 printf("Min : "); scanf("%f", &min);
-                printf("Max : "); scanf("%f", &max); nettoyerEcran();
+                printf("Max : "); scanf("%f", &max);
+                vider_buffer();
+                nettoyerEcran();
+                /* NOTE : verifie que cette fonction existe bien dans ton
+                   liste_chainee.h actuel (nom exact a confirmer). */
                 rechercher_intervalle_liste(l, min, max);
                 break;
             }
-            case 7: {
-                char prefixe[40];
-                printf("Prefixe : "); fgets(prefixe, sizeof(prefixe), stdin);
-                prefixe[strcspn(prefixe, "\n")] = '\0';
-                rechercher_prefixe_liste(l, prefixe);
+
+            /* --- 6. RECHERCHER PAR PREFIXE --- */
+            case 6: {
+                char prefixe[100];
+                printf("Prefixe : ");
+                scanf("%s", prefixe);
+                vider_buffer();
+                nettoyerEcran();
+                /* NOTE : verifie que cette fonction existe bien dans ton
+                   liste_chainee.h actuel (nom exact a confirmer). */
+                rechercher_liste_prefixes(l, prefixe);
                 break;
             }
+
+            /* --- 7. SUPPRIMER --- */
+            case 7: {
+                int matricule;
+                printf("Matricule : ");
+                scanf("%d", &matricule);
+                vider_buffer();
+                nettoyerEcran();
+                supprimer_liste_matricule(l, matricule);
+                break;
+            }
+
+            /* --- 8. MISE A JOUR (moyenne) --- */
             case 8: {
                 int matricule;
-                printf("Matricule : "); scanf("%d", &matricule); nettoyerEcran();
-                supprimer_matricule_liste(l, matricule);
-                break;
-            }
-            case 9:
-                tri_insertion_liste(l);
-                break;
-            case 10:
-                tri_bulles_liste(l);
-                break;
-            case 11:
-                if (l->taille > 0) {
-                    printf("Moyenne generale : %.2f\n", moyenne_generale_liste(l));
-                    printf("Min : %.2f  Max : %.2f\n",
-                           minimum_liste(l), maximum_liste(l));
-                    printf("Mediane : %.2f\n", mediane_liste(l));
-                    printf("Ecart-type : %.2f\n", ecart_type_liste(l));
+                float nouvelle_moyenne;
+                printf("Matricule : "); scanf("%d", &matricule);
+                printf("Nouvelle moyenne : "); scanf("%f", &nouvelle_moyenne);
+                vider_buffer();
+                nettoyerEcran();
+
+                Etudiant *e = rechercher_matricule_liste(l, matricule);
+                if (e) {
+                    e->moyenne = nouvelle_moyenne;
+                    set_couleur(COULEUR_SUCCES);
+                    printf("Mise a jour effectuee.\n");
+                    reset_couleur();
                 } else {
-                    printf("Liste vide.\n");
+                    set_couleur(COULEUR_ERREUR);
+                    printf("Etudiant non trouve.\n");
+                    reset_couleur();
                 }
                 break;
-            case 12: {
-                char nom_fichier[100];
-                printf("Nom du fichier : "); fgets(nom_fichier, sizeof(nom_fichier), stdin);
-                nom_fichier[strcspn(nom_fichier, "\n")] = '\0';
-                serialiser_liste(l, nom_fichier);
-                break;
             }
-            case 13: {
-                char nom_fichier[100];
-                printf("Nom du fichier : "); fgets(nom_fichier, sizeof(nom_fichier), stdin);
-                nom_fichier[strcspn(nom_fichier, "\n")] = '\0';
-                ListeDC *nouvelle = deserialiser_liste(nom_fichier);
-                if (nouvelle) { liberer_liste(l); l = nouvelle; }
+
+            /* --- 9. TRIER PAR INSERTION --- */
+            case 9:
+                liste_tri_insertion(l);
+                set_couleur(COULEUR_SUCCES);
+                printf("Trie par insertion.\n");
+                reset_couleur();
                 break;
-            }
+
+            /* --- 10. TRIER PAR RAPIDE --- */
+            case 10:
+                set_couleur(COULEUR_ERREUR);
+                printf("Tri rapide non disponible pour la liste chainee.\n");
+                printf("(structure sequentielle : utilisez le tri par insertion)\n");
+                reset_couleur();
+                break;
+
             case 0:
                 break;
-            default:
-                printf("Choix invalide.\n");
         }
     }
 
-    liberer_liste(l);
+    liste_liberer(l);
 }
 
+/* ============================================================
+   BENCHMARK
+   ============================================================ */
 void lancer_benchmark(void)
 {
+    set_couleur(COULEUR_TITRE);
     printf("\n========== BENCHMARK ==========\n");
-    printf("Cette fonctionnalite necessite le fichier benchmark/main.c\n");
-    printf("complet avec les mesures de temps sur les 3 structures.\n");
-    printf("Compilez avec : make bench  puis lancez : ./bench\n");
+    reset_couleur();
+    printf("Cette fonctionnalite necessite l'executable 'bench'.\n");
+    printf("Compilez avec : make main_bench  puis lancez : ./bench\n");
 }
 
-
-
+/* ============================================================
+   PROGRAMME PRINCIPAL
+   ============================================================ */
 int main(void)
 {
-    /* ========== MAIN ========== */
+    SetConsoleOutputCP(CP_UTF8);
+    SetConsoleCP(CP_UTF8);
+
+    agrandir_police_console();
+
     nettoyerEcran();
     afficherHeader();
+
+    printf("\n");
+    animer_texte("Bienvenue AIDA dans le Systeme de Gestion de Scolarite...\n", 25);
+    animer_chargement("Initialisation du systeme", 1500);
+    printf("\n");
+
+    set_couleur(COULEUR_PROMPT);
     printf("Appuyez sur Entree pour initialiser le systeme...");
+    reset_couleur();
     getchar();
-nettoyerEcran();
+    nettoyerEcran();
+
     int choix = -1;
 
     while (choix != 0) {
         afficher_menu_principal();
-        scanf("%d", &choix);
+        choix = lire_choix_valide(0, 4);
         nettoyerEcran();
 
         switch (choix) {
-            case 1: demo_tableau_statique();          break;
-            case 2: demo_tableau_dynamique();         break;
-            case 3: demo_liste_chainee();             break;
-            case 4: interface_tableau_statique();     break;
-            case 5: interface_tableau_dynamique();    break;
-            case 6: interface_liste_chainee();        break;
-            case 7: lancer_benchmark();               break;
-            case 0: printf("\nAu revoir !\n");        break;
-            default: printf("Choix invalide.\n");     break;
+            case 1: menu_tableau_statique();  break;
+            case 2: menu_tableau_dynamique(); break;
+            case 3: menu_liste_chainee();     break;
+            case 4: lancer_benchmark();       break;
+            case 0:
+                set_couleur(COULEUR_SUCCES);
+                printf("\nAu revoir AIDA !\n");
+                reset_couleur();
+                break;
         }
     }
 
