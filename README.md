@@ -49,17 +49,16 @@ SENE-DIONE_SD/
 │   └── main-bench.c                # Benchmark complet (mesures de temps)
 │
 ├── graphs/                   # Scripts Python pour les courbes
-│   ├── courbe-rellentissement.py    # Lance tous les scripts de courbes
-│   ├── courbe_lineaire.py    # Courbes temps vs n (échelle linéaire)
-│   ├── courbe_log.py         # Courbes temps vs n (échelle logarithmique)
-│   ├── courbe_distribution.py# Courbes par distribution des données
-│   └── courbe_comparaison.py # Empirique vs théorique
+│   ├── courbe-ralentissement.py    # Lance tous les scripts de courbes
+│   ├── courbe_lineaire_log.py    # Courbes temps vs n (échelle linéaire et échellelog)
+│   └── courbe_superposant.py # Empirique vs théorique
 │
 ├── data/                     # Jeux de données générés (.bin)
 ├── gitignore
 ├── rapport/
     ├── Latex # Rapport LaTeX
     ├── Manuel # Rapport Manuel
+    ├── figures
     ├── PDF      
 ├── Makefile                  # Compilation du projet
 └── README.md                 # Ce fichier

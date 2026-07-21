@@ -3,6 +3,7 @@
 #include <string.h>
 #include <math.h>
 #include "../include/tableau_statique.h"
+#include "../include/structure.h"
 
 /* 
  * Insère un étudiant à la bonne position (tri par matricule).

@@ -327,17 +327,6 @@ facteur de croissance de $\times 2$ via \texttt{realloc}.
 
 \begin{lstlisting}[caption={Structure TableauDyn}]
 typedef struct {
-    typedef struct {
-    int matricule;
-    char nom[50];
-    char *prenom;
-    float moyenne;
-    Date dateNaissance;
-    Date dateInscription;   /* Utilise votre structure Date existante*/
-    char filiere[50];       /* Chaîne de caractères pour la filière*/
-    char niveau[20];        /* Exemple : L1, L2, L3, M1*/
-    char matiere[50];       /* Nom de la matière principale*/
-} Etudiant;
     Etudiant **tab;   /* tableau de pointeurs vers Etudiant */
     int taille;       /* nombre d'etudiants stockes         */
     int capacite;     /* capacite actuelle (avant realloc)  */
@@ -369,17 +358,6 @@ elimine les cas particuliers d'insertion et de suppression en tete.
 \subsubsection{Structures}
 
 \begin{lstlisting}[caption={Structures Noeud et ListeC}]
-typedef struct {
-    int matricule;
-    char nom[50];
-    char prenom[100];
-    float moyenne;
-    Date dateNaissance;
-    Date dateInscription;   /*Utilise votre structure Date existante*/
-    char filiere[50];       /* Chaîne de caractères pour la filière*/
-    char niveau[20];        /* Exemple : L1, L2, L3, M1*/
-    char matiere[50];       /* Nom de la matière principale*/
-} Etudiant;
 typedef struct Noeud {
     Etudiant     *etudiant;
     struct Noeud *suiv;
