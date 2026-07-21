@@ -192,7 +192,7 @@ void Tri_insertion_moyenne(Etudiant *tab, int n)
  * minimumDesmoyennes
  * Retourne la plus petite moyenne.
  */
-int minimumDesmoyennes(Etudiant tab[], int n)
+float minimumDesmoyennes(Etudiant tab[], int n)
 {
     double min = tab[0].moyenne;
     int i;
@@ -208,7 +208,7 @@ int minimumDesmoyennes(Etudiant tab[], int n)
  * maximumDesmoyennes
  * Retourne la plus grande moyenne.
  */
-int maximumDesmoyennes(Etudiant tab[], int n)
+float maximumDesmoyennes(Etudiant tab[], int n)
 {
     double max = tab[0].moyenne;
     int i;

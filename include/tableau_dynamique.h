@@ -4,23 +4,16 @@
 #define CAPACITE_INITIALE 4
 #include "../include/structure.h"
 
-typedef struct {
-    int matricule;
-    char nom[50];
-    char *prenom;
-    float moyenne;
-    Date dateNaissance;
-    
-    // --- LES AJOUTS REQUIS ---
-    Date dateInscription;   // Utilise votre structure Date existante
-    char filiere[50];       // Chaîne de caractères pour la filière
-    char niveau[20];        // Exemple : L1, L2, L3, M1
-    char matiere[50];       // Nom de la matière principale
-} Etudiant;
+/* BUG CORRIGE : le typedef "Etudiant" qui existait ici (avec un "char
+   *prenom" alloue dynamiquement, different a la fois de la version de
+   tableau_statique.h/liste_chainee.h qui utilisaient un "char prenom[100]"
+   fixe) a ete supprime. Un seul type Etudiant existe desormais, dans
+   structure.h, importe ci-dessus. Voir le commentaire detaille dans
+   structure.h pour l'explication complete du bug de types incompatibles. */
 
 typedef struct {
     Etudiant **tab;   /* tableau de pointeurs vers Etudiant */
-    int taille; 
+    int taille;
      int capacite;     /* capacité actuelle du tableau       */
 } TableauDyn;
 

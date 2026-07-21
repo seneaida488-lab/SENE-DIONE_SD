@@ -3,21 +3,12 @@
 
 #include "../include/structure.h"
 
-/* --- STRUCTURES --- */
-typedef struct {
-    int matricule;
-    char nom[50];
-    char prenom[100];
-    float moyenne;
-    Date dateNaissance;
-    
-    // --- LES AJOUTS REQUIS ---
-    Date dateInscription;   // Utilise votre structure Date existante
-    char filiere[50];       // Chaîne de caractères pour la filière
-    char niveau[20];        // Exemple : L1, L2, L3, M1
-    char matiere[50];       // Nom de la matière principale
-} Etudiant;
+/* BUG CORRIGE : le typedef "Etudiant" qui existait ici a ete supprime. Un
+   seul type Etudiant existe desormais, dans structure.h, importe ci-dessus.
+   Voir le commentaire detaille dans structure.h pour l'explication complete
+   du bug de types incompatibles entre les quatre definitions dupliquees. */
 
+/* --- STRUCTURES --- */
 typedef struct Noeud {
     Etudiant *etudiant;        /* pointeur vers les données               */
     struct Noeud *suivant;     /* pointeur vers le noeud suivant          */

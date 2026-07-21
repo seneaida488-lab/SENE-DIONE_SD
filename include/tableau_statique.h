@@ -4,19 +4,12 @@
 #include "structure.h"
 #define TAILLEMAX 100000
 
-typedef struct {
-    int matricule;
-    char nom[50];
-    char prenom[100];
-    float moyenne;
-    Date dateNaissance;
-
-    // --- LES AJOUTS REQUIS ---
-    Date dateInscription;   // Utilise votre structure Date existante
-    char filiere[50];       // Chaîne de caractères pour la filière
-    char niveau[20];        // Exemple : L1, L2, L3, M1
-    char matiere[50];       // Nom de la matière principale
-} Etudiant;
+/* BUG CORRIGE : le typedef "Etudiant" qui existait ici a ete supprime.
+   Il creait un type anonyme distinct de celui de structure.h (et de ceux
+   de tableau_dynamique.h / liste_chainee.h), ce qui rendait les fonctions
+   de ces headers mutuellement incompatibles (voir le commentaire detaille
+   dans structure.h). Le type Etudiant utilise maintenant est UNIQUEMENT
+   celui importe via #include "structure.h" ci-dessus. */
 
 int insertionTableau(Etudiant tab[], int *n, Etudiant e);
 
@@ -47,14 +40,9 @@ void TriRapide(Etudiant tab[], int premier, int dernier);
 void Tri_insertion_moyenne(Etudiant *tab, int n);
 
 /* Retourne la plus petite moyenne.
-   BUG CORRIGE : declaree "int" alors que "moyenne" est un float (ex: 17.50).
-   Un retour "int" tronque toute partie decimale (17.50 -> 17) et surtout
-   provoque un comportement indefini partout ou le resultat est affiche
-   avec un format "%.2f" (qui attend un double dans les arguments
-   variadiques d'un printf, pas un int). Retype en "float" pour rester
-   coherent avec MedianeDesmoyennes/EcartTypeDesmoyennes qui renvoient
-   deja des float. -> Pense a mettre a jour la definition (.c) en
-   consequence : "float minimumDesmoyennes(...)". */
+   BUG CORRIGE : declaree "int" alors que "moyenne" est un float. Retype en
+   "float" (voir explication precedente) -> pense a mettre a jour la
+   definition dans le .c correspondant en consequence. */
 float minimumDesmoyennes(Etudiant tab[], int n);
 
 /* Retourne la plus grande moyenne. Meme correction que ci-dessus. */
